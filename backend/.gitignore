@@ -1,0 +1,19 @@
+# Logs
+logs
+*.log
+
+# Environment variables
+*.env
+
+# Dependencies
+node_modules
+
+# Built output
+build
+
+# IDE files
+.vscode
+.idea
+
+*.rest
+yarn.lock
