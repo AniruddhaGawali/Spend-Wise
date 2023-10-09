@@ -43,7 +43,12 @@ class LoginScreen extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           ),
         );
+
         ref.read(tokenProvider.notifier).set(body["token"]);
+
+        if (rememberMe) {
+          ref.read(tokenProvider.notifier).saveToken();
+        }
         return true;
       } else if (response.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(

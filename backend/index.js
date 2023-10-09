@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', require('./controller/user.controller'));
 app.use('/api/transaction', require('./controller/transaction.controller'));
+app.use('/api/all-data', require('./controller/get-data.controller'));
 
 app.listen(PORT, async () => {
   // await connect();

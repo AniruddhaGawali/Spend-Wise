@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/provider/token_provider.dart';
 
 import 'package:spendwise/screens/register_screen_screen.dart';
 
-class StartupScreen extends StatelessWidget {
+class StartupScreen extends ConsumerWidget {
   const StartupScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    print(ref.read(tokenProvider.notifier).get());
     return Scaffold(
         body: SizedBox(
       width: double.infinity,

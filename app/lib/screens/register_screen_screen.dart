@@ -42,6 +42,9 @@ class RegisterScreeen extends StatelessWidget {
           ),
         );
         ref.read(tokenProvider.notifier).set(body["token"]);
+        if (rememberMe) {
+          ref.read(tokenProvider.notifier).saveToken();
+        }
         return true;
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
