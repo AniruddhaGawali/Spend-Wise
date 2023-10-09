@@ -17,3 +17,9 @@ build
 
 *.rest
 yarn.lock
+
+#  env files
+.env
+
+# request.rest
+request.rest

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class AuthWidgit extends StatefulWidget {
+class AuthWidgit extends ConsumerStatefulWidget {
   final bool isLogin;
   final String title;
   final String subTitle;
@@ -11,6 +12,9 @@ class AuthWidgit extends StatefulWidget {
   final String? bottomText;
   final String? bottomButtonText;
   final Widget? bottomWidget;
+  final Widget? nextScreen;
+  final Future<bool> Function(String username, String password, bool rememberMe,
+      WidgetRef ref, BuildContext context)? onSubmit;
 
   const AuthWidgit({
     super.key,
@@ -23,13 +27,15 @@ class AuthWidgit extends StatefulWidget {
     this.bottomText,
     this.bottomButtonText,
     this.bottomWidget,
+    this.nextScreen,
+    this.onSubmit,
   });
 
   @override
-  State<AuthWidgit> createState() => _AuthWidgitState();
+  ConsumerState<AuthWidgit> createState() => _AuthWidgitState();
 }
 
-class _AuthWidgitState extends State<AuthWidgit> {
+class _AuthWidgitState extends ConsumerState<AuthWidgit> {
   final _formKey = GlobalKey<FormState>();
   String _username = "";
   String _password = "";
@@ -38,7 +44,6 @@ class _AuthWidgitState extends State<AuthWidgit> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.bottomButtonText.runtimeType);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -143,40 +148,61 @@ class _AuthWidgitState extends State<AuthWidgit> {
                         const SizedBox(
                           height: 10,
                         ),
-                        widget.isLogin
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Checkbox(
-                                    value: _rememberMe,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _rememberMe = value!;
-                                      });
-                                    },
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberMe = value!;
+                                });
+                              },
+                            ),
+                            Text(
+                              "Remember Me",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
-                                  Text(
-                                    "Remember Me",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
-                                        ),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox(),
+                            ),
+                          ],
+                        ),
                         const SizedBox(
                           height: 20,
                         ),
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.tonalIcon(
-                            onPressed: () {},
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                if (widget.onSubmit != null) {
+                                  bool isSuccess = await widget.onSubmit!(
+                                    _username,
+                                    _password,
+                                    _rememberMe,
+                                    ref,
+                                    context,
+                                  );
+
+                                  if (isSuccess) {
+                                    if (context.mounted) {
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              widget.nextScreen!,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              }
+                            },
                             icon: Icon(widget.buttonIcon),
                             label: Padding(
                               padding: const EdgeInsets.all(8.0),
