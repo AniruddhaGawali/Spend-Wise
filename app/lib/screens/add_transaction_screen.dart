@@ -138,14 +138,9 @@ class AddTransactionScreen extends HookConsumerWidget {
     ));
   }
 
-
-  Widget setDateTimeForm(){
+  Widget setDateTimeForm() {
     return Row(
-      children: [
-        DatePickerDialog(initialDate: DateTime.now(), firstDate:
-      
-         , lastDate: lastDate)
-      ],
-    )
+      children: [],
+    );
   }
 }
