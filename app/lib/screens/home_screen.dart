@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -8,12 +9,13 @@ import 'package:spendwise/model/transaction.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
+import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
 
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 
-class HomeScreen extends HookConsumerWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
@@ -49,7 +51,10 @@ class HomeScreen extends HookConsumerWidget {
     );
   }
 
-  Widget header(BuildContext context, WidgetRef ref) {
+  Widget header(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
     return Row(
       children: [
         Column(
@@ -94,7 +99,10 @@ class HomeScreen extends HookConsumerWidget {
     );
   }
 
-  Widget balanceCard(BuildContext context, WidgetRef ref) {
+  Widget balanceCard(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
     return IntrinsicHeight(
       child: Row(
         children: [
@@ -155,7 +163,11 @@ class HomeScreen extends HookConsumerWidget {
                 Theme.of(context).colorScheme.tertiaryContainer.withOpacity(.8),
             borderRadius: BorderRadius.circular(30),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const AddTransactionScreen();
+                }));
+              },
               borderRadius: BorderRadius.circular(30),
               splashColor: Theme.of(context).colorScheme.tertiaryContainer,
               highlightColor: Theme.of(context).colorScheme.tertiaryContainer,
