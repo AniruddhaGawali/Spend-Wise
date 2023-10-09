@@ -26,7 +26,7 @@ const transactionSchema = new mongoose.Schema(
       enum: ['income', 'expense'],
       required: true,
     },
-    catergory: {
+    category: {
       type: String,
       enum: [
         'food',
@@ -39,7 +39,7 @@ const transactionSchema = new mongoose.Schema(
         'clothing',
         'investments',
         'travel',
-        'investments',
+        'other',
       ],
       required: true,
     },

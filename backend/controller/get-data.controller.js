@@ -24,7 +24,7 @@ router.get('/', auth, async (req, res) => {
     const transactions = await Transaction.find({ userId: user.id });
 
     // Return all data
-    res.json({ user, accounts, transactions });
+    res.status(200).json({ user, accounts, transactions });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

@@ -19,7 +19,7 @@ class CustomActionChip extends StatelessWidget {
           style: Theme.of(context).textTheme.labelLarge!.copyWith(
                 fontWeight: FontWeight.bold,
               )),
-      avatar: Icon(icon),
+      avatar: icon != null ? Icon(icon) : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),

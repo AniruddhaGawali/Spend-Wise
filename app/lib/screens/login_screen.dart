@@ -5,8 +5,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/screens/home_screen.dart';
 import 'package:spendwise/screens/register_screen_screen.dart';
-import 'package:spendwise/screens/startup_screen.dart';
+
+import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/auth.dart';
 
 import 'package:http/http.dart' as http;
@@ -49,6 +51,9 @@ class LoginScreen extends StatelessWidget {
         if (rememberMe) {
           ref.read(tokenProvider.notifier).saveToken();
         }
+
+        await fetchData(ref);
+
         return true;
       } else if (response.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +96,7 @@ class LoginScreen extends StatelessWidget {
       bottomText: "Don't have an account?",
       bottomButtonText: "Register",
       bottomWidget: const RegisterScreeen(),
-      nextScreen: const StartupScreen(),
+      nextScreen: const HomeScreen(),
       onSubmit: _login,
     );
   }

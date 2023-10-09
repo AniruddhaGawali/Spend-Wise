@@ -47,6 +47,8 @@ dependencies:
   sqflite: ^2.2.8+4
   sqflite_common_ffi: any
   path: ^1.8.2
+  package_info_plus: ^5.0.0
+  flutter_file_downloader: ^1.1.4
 
 dev_dependencies:
   flutter_test:

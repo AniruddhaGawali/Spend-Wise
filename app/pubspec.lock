@@ -102,6 +102,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.0"
+  flutter_file_downloader:
+    dependency: "direct main"
+    description:
+      name: flutter_file_downloader
+      sha256: "1374c31dcbd9df0324439cbc8877c6a9d5fc3eac80196493f22b25342dffb44c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.4"
   flutter_hooks:
     dependency: "direct main"
     description:
@@ -136,6 +144,11 @@ packages:
     version: "2.0.7"
   flutter_test:
     dependency: "direct dev"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -211,6 +224,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  package_info_plus:
+    dependency: "direct main"
+    description:
+      name: package_info_plus
+      sha256: "0351aaba3b267c4962ed73058a5f62a84de7e39670a20e2916a6baff2ffcfbe5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "9bc8ba46813a4cc42c66ab781470711781940780fd8beddd0c3da62506d3a6c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   page_transition:
     dependency: transitive
     description:
@@ -243,6 +272,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
+  plugin_platform_interface:
+    dependency: transitive
+    description:
+      name: plugin_platform_interface
+      sha256: da3fdfeccc4d4ff2da8f8c556704c08f912542c5fb3cf2233ed75372384a034d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.6"
   riverpod:
     dependency: transitive
     description:
@@ -400,6 +437,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.4-beta"
+  win32:
+    dependency: transitive
+    description:
+      name: win32
+      sha256: "350a11abd2d1d97e0cc7a28a81b781c08002aa2864d9e3f192ca0ffa18b06ed3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.9"
   xml:
     dependency: transitive
     description:

@@ -2,25 +2,30 @@ import 'dart:io';
 
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/login_screen.dart';
+
+import 'package:spendwise/screens/home_screen.dart';
 import 'package:spendwise/screens/startup_screen.dart';
 import "package:spendwise/theme/app_theme.dart";
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as sqflite_ffi;
+
+import 'package:spendwise/utils/fetch_all_data.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
-    sqfliteFfiInit();
+    sqflite_ffi.sqfliteFfiInit();
     // Change the default factory
-    databaseFactory = databaseFactoryFfi;
+    sqflite_ffi.databaseFactory = sqflite_ffi.databaseFactoryFfi;
   }
 
   runApp(const ProviderScope(child: MyApp()));
@@ -45,8 +50,14 @@ class MyApp extends ConsumerWidget {
               bool isTokenLoaded =
                   await ref.read(tokenProvider.notifier).loadToken();
 
-              return isTokenLoaded
-                  ? const LoginScreen()
+              bool isDataFetch = false;
+
+              if (isTokenLoaded) {
+                isDataFetch = await fetchData(ref);
+              }
+
+              return isTokenLoaded && isDataFetch
+                  ? const HomeScreen()
                   : const StartupScreen();
             }),
       ),

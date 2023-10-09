@@ -17,7 +17,7 @@ router.get('/', auth, async (req, res) => {
 
 router.post('/add', auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, catergory } = req.body;
+    const { title, accountId, type, amount, category } = req.body;
     const userId = req.userId;
 
     // Create new account
@@ -26,7 +26,7 @@ router.post('/add', auth, async (req, res) => {
       accountId,
       type,
       amount,
-      catergory,
+      category,
       userId,
     });
 

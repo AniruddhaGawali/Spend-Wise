@@ -22,7 +22,7 @@ class Account {
       id: json['_id'],
       name: json['name'],
       type: json['type'] == 'bank' ? AccountType.bank : AccountType.cash,
-      balance: double.parse(json['balance']),
+      balance: double.parse(json['balance'].toString()),
     );
   }
 

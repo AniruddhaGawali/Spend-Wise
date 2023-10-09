@@ -4,6 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/screens/home_screen.dart';
+import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -152,6 +154,9 @@ class AddAccountScreen extends HookConsumerWidget {
 
                           if (isAccountCreated) {
                             if (context.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text("Account created successfully!",
@@ -169,8 +174,22 @@ class AddAccountScreen extends HookConsumerWidget {
                                 ),
                               );
                             }
+
+                            await fetchData(ref);
+
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomeScreen(),
+                                ),
+                              );
+                            }
                           } else {
                             if (context.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
