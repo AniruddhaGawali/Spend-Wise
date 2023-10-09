@@ -2,7 +2,7 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:spendwise/screens/startup.dart';
+import 'package:spendwise/screens/startup_screen.dart';
 import "package:spendwise/theme/app_theme.dart";
 
 void main() {

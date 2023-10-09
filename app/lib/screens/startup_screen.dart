@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/screens/register_screen_screen.dart';
 
 class StartupScreen extends StatelessWidget {
   const StartupScreen({super.key});
@@ -60,7 +61,13 @@ class StartupScreen extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.5,
               child: FilledButton.icon(
                 icon: Icon(MdiIcons.arrowRight),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterScreeen(),
+                    ),
+                  );
+                },
                 label: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Text(
