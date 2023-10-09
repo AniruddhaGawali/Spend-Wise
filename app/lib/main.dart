@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
             splashIconSize: 100,
             screenFunction: () async {
               await Future.delayed(const Duration(seconds: 2));
-              return StartupScreen();
+              return const StartupScreen();
             }),
       ),
     );
