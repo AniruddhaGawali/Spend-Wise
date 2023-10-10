@@ -54,11 +54,14 @@ class TransactionCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    Container(
                       width: MediaQuery.of(context).size.width * 0.4,
+                      height: 30,
+                      alignment: Alignment.centerLeft,
                       child: FittedBox(
                         child: Text(
                           transaction.title,
+                          textAlign: TextAlign.left,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
@@ -92,7 +95,7 @@ class TransactionCard extends StatelessWidget {
                 SizedBox(
                   width: 80,
                   child: FittedBox(
-                    child: Text('\$${transaction.amount.toStringAsFixed(2)}',
+                    child: Text('\₹${transaction.amount.toStringAsFixed(2)}',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!

@@ -17,8 +17,10 @@ router.get('/', auth, async (req, res) => {
 
 router.post('/add', auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, category } = req.body;
+    const { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
+
+    let tDate = new Date(date);
 
     // Create new account
     const newTransaction = new Transaction({
@@ -28,6 +30,7 @@ router.post('/add', auth, async (req, res) => {
       amount,
       category,
       userId,
+      date: tDate,
     });
 
     // Save account to database

@@ -73,6 +73,8 @@ class Transaction {
     final category = TransactionCatergory.values.firstWhere((element) =>
         element.toString().split(".").last == json["category"].toString());
 
+    print(json);
+
     return Transaction(
       id: json["_id"],
       title: json["title"],
@@ -82,7 +84,7 @@ class Transaction {
           ? TransactionType.income
           : TransactionType.expense,
       category: category,
-      date: DateTime.parse(json["updatedAt"].toString()),
+      date: DateTime.parse(json["date"]).toLocal(),
     );
   }
 }
