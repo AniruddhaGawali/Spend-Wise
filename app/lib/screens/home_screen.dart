@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
 import 'package:spendwise/model/transaction.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
@@ -194,20 +191,20 @@ class HomeScreen extends ConsumerWidget {
 
   Widget filterChips() {
     return SizedBox(
-      height: 60,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 10,
         children: [
           ...TransactionCatergory.values
+              .sublist(0, 6)
               .map(
-                (e) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CustomActionChip(
-                    label: e.name[0].toUpperCase() +
-                        e.name.substring(1).toLowerCase(),
-                    icon: getTransactionCatergoryIcon(e),
-                    selected: true,
-                  ),
+                (e) => CustomActionChip(
+                  label: e.name[0].toUpperCase() +
+                      e.name.substring(1).toLowerCase(),
+                  icon: getTransactionCatergoryIcon(e),
+                  selected: true,
                 ),
               )
               .toList()
@@ -230,6 +227,7 @@ class HomeScreen extends ConsumerWidget {
         ...ref
             .watch(transactionProvider.notifier)
             .get()
+            .reversed
             .map((e) => TransactionCard(transaction: e))
             .toList(),
       ],

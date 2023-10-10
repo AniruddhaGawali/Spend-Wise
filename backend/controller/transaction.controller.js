@@ -1,6 +1,7 @@
 const express = require('express');
 
 const Transaction = require('../model/transaction.model');
+const Account = require('../model/account.model');
 const auth = require('../middleware/auth.middleware');
 
 const router = express.Router();
@@ -36,7 +37,16 @@ router.post('/add', auth, async (req, res) => {
     // Save account to database
     await newTransaction.save();
 
-    res.status(201).json({
+    await Account.updateOne(
+      { _id: accountId },
+      {
+        $inc: {
+          balance: type === 'income' ? +amount : -amount,
+        },
+      }
+    );
+
+    await res.status(201).json({
       message: 'New Transaction created and added to user successfully',
     });
   } catch (error) {

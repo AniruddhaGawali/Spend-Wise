@@ -51,8 +51,6 @@ class AddTransactionScreen extends HookConsumerWidget {
       body: jsonEncode(transaction),
     );
 
-    Map<String, dynamic> body = jsonDecode(response.body);
-
     if (response.statusCode == 201) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -136,6 +134,9 @@ class AddTransactionScreen extends HookConsumerWidget {
                 ],
                 selected: {selectedTransactionType.value},
                 onSelectionChanged: (value) {
+                  value.first == TransactionType.expense
+                      ? selectedCategory.value = TransactionCatergory.food
+                      : selectedCategory.value = TransactionCatergory.account;
                   selectedTransactionType.value = value.first;
                 },
               ),
@@ -186,9 +187,7 @@ class AddTransactionScreen extends HookConsumerWidget {
               const SizedBox(
                 height: 20,
               ),
-              setCategory(
-                selectedCategory,
-              ),
+              setCategory(selectedCategory, selectedTransactionType),
               const SizedBox(
                 height: 40,
               ),
@@ -392,29 +391,46 @@ class AddTransactionScreen extends HookConsumerWidget {
     );
   }
 
-  Widget setCategory(
-    ValueNotifier<TransactionCatergory> selectedCategory,
-  ) {
+  Widget setCategory(ValueNotifier<TransactionCatergory> selectedCategory,
+      ValueNotifier<TransactionType> selectedTransactionType) {
     return SizedBox(
         width: double.infinity,
         child: Wrap(
-          alignment: WrapAlignment.center,
+          alignment: selectedTransactionType.value == TransactionType.expense
+              ? WrapAlignment.center
+              : WrapAlignment.start,
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 10,
           children: [
-            ...TransactionCatergory.values
-                .map(
-                  (e) => CustomActionChip(
-                    label: e.toString().split('.').last[0].toUpperCase() +
-                        e.toString().split('.').last.substring(1),
-                    icon: getTransactionCatergoryIcon(e),
-                    selected: selectedCategory.value == e,
-                    onPressed: () {
-                      selectedCategory.value = e;
-                    },
-                  ),
-                )
-                .toList()
+            ...selectedTransactionType.value == TransactionType.expense
+                ? TransactionCatergory.values
+                    .where((element) => element != TransactionCatergory.account)
+                    .map(
+                      (e) => CustomActionChip(
+                        label: e.toString().split('.').last[0].toUpperCase() +
+                            e.toString().split('.').last.substring(1),
+                        icon: getTransactionCatergoryIcon(e),
+                        selected: selectedCategory.value == e,
+                        onPressed: () {
+                          selectedCategory.value = e;
+                        },
+                      ),
+                    )
+                    .toList()
+                : TransactionCatergory.values
+                    .where((element) => element == TransactionCatergory.account)
+                    .map(
+                      (e) => CustomActionChip(
+                        label: e.toString().split('.').last[0].toUpperCase() +
+                            e.toString().split('.').last.substring(1),
+                        icon: getTransactionCatergoryIcon(e),
+                        selected: selectedCategory.value == e,
+                        onPressed: () {
+                          selectedCategory.value = e;
+                        },
+                      ),
+                    )
+                    .toList()
           ],
         ));
   }

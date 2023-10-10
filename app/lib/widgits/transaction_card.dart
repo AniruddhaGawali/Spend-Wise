@@ -95,7 +95,7 @@ class TransactionCard extends StatelessWidget {
                 SizedBox(
                   width: 80,
                   child: FittedBox(
-                    child: Text('\₹${transaction.amount.toStringAsFixed(2)}',
+                    child: Text('₹${transaction.amount.toStringAsFixed(2)}',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!

@@ -15,6 +15,7 @@ enum TransactionCatergory {
   clothing,
   investments,
   travel,
+  account,
   other
 }
 
@@ -40,6 +41,8 @@ IconData getTransactionCatergoryIcon(TransactionCatergory catergory) {
       return MdiIcons.cash;
     case TransactionCatergory.travel:
       return Icons.flight;
+    case TransactionCatergory.account:
+      return Icons.account_balance;
     case TransactionCatergory.other:
       return Icons.more_horiz;
   }
@@ -72,8 +75,6 @@ class Transaction {
 
     final category = TransactionCatergory.values.firstWhere((element) =>
         element.toString().split(".").last == json["category"].toString());
-
-    print(json);
 
     return Transaction(
       id: json["_id"],
