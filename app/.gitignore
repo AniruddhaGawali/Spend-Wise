@@ -45,3 +45,4 @@ app.*.map.json
 
 # env files
 .env
+.env.local
