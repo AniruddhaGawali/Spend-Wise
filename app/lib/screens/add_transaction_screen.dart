@@ -17,8 +17,11 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class AddTransactionScreen extends HookConsumerWidget {
-  const AddTransactionScreen({
+  TransactionCatergory? userSelectedCategory;
+
+  AddTransactionScreen({
     super.key,
+    this.userSelectedCategory,
   });
 
   addTransaction(
@@ -104,8 +107,8 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedDate = useState<DateTime>(DateTime.now());
     final selectedTime = useState<TimeOfDay>(TimeOfDay.now());
 
-    final selectedCategory =
-        useState<TransactionCatergory>(TransactionCatergory.food);
+    final selectedCategory = useState<TransactionCatergory>(
+        userSelectedCategory ?? TransactionCatergory.food);
 
     final isLoading = useState<bool>(false);
 

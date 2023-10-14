@@ -42,7 +42,9 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  filterChips(),
+                  filterChips(
+                    context,
+                  ),
                   const SizedBox(
                     height: 40,
                   ),
@@ -179,9 +181,10 @@ class HomeScreen extends HookConsumerWidget {
               borderRadius: BorderRadius.circular(30),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const AddTransactionScreen();
-                  }));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddTransactionScreen()));
                 },
                 borderRadius: BorderRadius.circular(30),
                 splashColor: Theme.of(context).colorScheme.tertiaryContainer,
@@ -204,7 +207,7 @@ class HomeScreen extends HookConsumerWidget {
     );
   }
 
-  Widget filterChips() {
+  Widget filterChips(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Wrap(
@@ -216,6 +219,14 @@ class HomeScreen extends HookConsumerWidget {
               .sublist(0, 6)
               .map(
                 (e) => CustomActionChip(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddTransactionScreen(
+                                  userSelectedCategory: e,
+                                )));
+                  },
                   label: e.name[0].toUpperCase() +
                       e.name.substring(1).toLowerCase(),
                   icon: getTransactionCatergoryIcon(e),

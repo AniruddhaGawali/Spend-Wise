@@ -9,6 +9,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:spendwise/provider/token_provider.dart';
 
 import 'package:spendwise/screens/home_screen.dart';
+import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/screens/startup_screen.dart';
 import "package:spendwise/theme/app_theme.dart";
 
@@ -82,7 +83,7 @@ class MyApp extends ConsumerWidget {
               }
 
               return isTokenLoaded && isDataFetch
-                  ? const HomeScreen()
+                  ? MainScreen()
                   : const StartupScreen();
             }),
       ),
