@@ -12,6 +12,10 @@ const versionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.String,
       required: true,
     },
+    description: {
+      type: mongoose.Schema.Types.Array,
+      required: true,
+    },
   },
   {
     timestamps: true,

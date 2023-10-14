@@ -7,6 +7,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
+import 'package:spendwise/widgits/buttet_points.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -19,7 +20,7 @@ class _SettingScreenState extends State<SettingScreen> {
   String _version = "";
   bool _downloaded = true;
   String _update = "";
-
+  List<String>? _description;
   @override
   void initState() {
     super.initState();
@@ -81,6 +82,7 @@ class _SettingScreenState extends State<SettingScreen> {
       if (_version != update['version']) {
         setState(() {
           _update = update['update_link'];
+          _description = update['description'];
         });
       }
     }
@@ -105,85 +107,123 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SizedBox(
-        width: double.infinity,
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 50,
-              ),
-              Container(
-                padding: const EdgeInsets.all(50),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "SpendWise",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineLarge!
-                          .copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              fontWeight: FontWeight.w600),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(50),
+                    margin: const EdgeInsets.symmetric(horizontal: 30),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    Text(
-                      "v$_version",
-                      style:
-                          Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    child: Column(
+                      children: [
+                        Text(
+                          "SpendWise",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge!
+                              .copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                  fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          "v$_version",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onPrimaryContainer,
                                 fontWeight: FontWeight.w400,
                               ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    FilledButton.icon(
-                        onPressed: _update.isNotEmpty
-                            ? () {
-                                FileDownloader.downloadFile(
-                                  url: _update,
-                                  onProgress: (fileName, progress) {
-                                    setState(() {
-                                      _downloaded = false;
-                                    });
-                                  },
-                                  onDownloadCompleted: (fileName) {
-                                    setState(() {
-                                      _downloaded = true;
-                                    });
-                                    _showMyDialog();
-                                  },
-                                );
-                              }
-                            : null,
-                        icon: _downloaded
-                            ? Icon(MdiIcons.update)
-                            : SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator.adaptive(
-                                  strokeCap: StrokeCap.butt,
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.onPrimary,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Column(
+                          children: [
+                            _description != null
+                                ? Column(
+                                    children: [
+                                      Text("New Update Features",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge!
+                                              .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimaryContainer,
+                                                  fontWeight: FontWeight.w600)),
+                                      ..._description!
+                                          .map((e) => BulletsPoints(
+                                                text: e,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10),
+                                              ))
+                                          .toList()
+                                    ],
+                                  )
+                                : const SizedBox(),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FilledButton.icon(
+                            onPressed: _update.isNotEmpty
+                                ? () {
+                                    FileDownloader.downloadFile(
+                                      url: _update,
+                                      onProgress: (fileName, progress) {
+                                        setState(() {
+                                          _downloaded = false;
+                                        });
+                                      },
+                                      onDownloadCompleted: (fileName) {
+                                        setState(() {
+                                          _downloaded = true;
+                                        });
+                                        _showMyDialog();
+                                      },
+                                    );
+                                  }
+                                : null,
+                            icon: _downloaded
+                                ? Icon(MdiIcons.update)
+                                : SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator.adaptive(
+                                      strokeCap: StrokeCap.butt,
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                        label: _downloaded
-                            ? const Text("Update")
-                            : const Text("Downloading"))
-                  ],
-                ),
-              )
-            ]),
+                            label: _downloaded
+                                ? const Text("Update")
+                                : const Text("Downloading"))
+                      ],
+                    ),
+                  )
+                ]),
+          ),
+        ),
       ),
     );
   }
