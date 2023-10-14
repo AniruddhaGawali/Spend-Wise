@@ -1,11 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spendwise/model/transaction.dart';
 
-class TransactionNotifier extends Notifier<List<Transaction>> {
-  @override
-  List<Transaction> build() {
-    return [];
-  }
+class TransactionNotifier extends StateNotifier<List<Transaction>> {
+  TransactionNotifier() : super([]);
 
   List<Transaction> get() => state;
 
@@ -14,11 +11,11 @@ class TransactionNotifier extends Notifier<List<Transaction>> {
   }
 
   void addTransaction(Transaction transaction) {
-    state.add(transaction);
+    state = [...state, transaction];
   }
 
   void removeTransaction(Transaction transaction) {
-    state.remove(transaction);
+    state = state.where((element) => element.id != transaction.id).toList();
   }
 
   double totalExpenses() {
@@ -33,6 +30,6 @@ class TransactionNotifier extends Notifier<List<Transaction>> {
 }
 
 final transactionProvider =
-    NotifierProvider<TransactionNotifier, List<Transaction>>(
-  () => TransactionNotifier(),
+    StateNotifierProvider<TransactionNotifier, List<Transaction>>(
+  (ref) => TransactionNotifier(),
 );

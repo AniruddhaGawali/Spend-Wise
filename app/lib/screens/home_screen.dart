@@ -7,43 +7,50 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
+import 'package:spendwise/utils/fetch_all_data.dart';
 
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final transactions = ref.watch(transactionProvider);
     return Scaffold(
-      body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height - 40,
-            child: SingleChildScrollView(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 40,
-                ),
-                header(context, ref),
-                const SizedBox(
-                  height: 40,
-                ),
-                balanceCard(context, ref),
-                const SizedBox(
-                  height: 20,
-                ),
-                filterChips(),
-                const SizedBox(
-                  height: 40,
-                ),
-                pastTransactions(context, ref),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await fetchData(ref);
+        },
+        child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height - 40,
+              child: SingleChildScrollView(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  header(context, ref),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  balanceCard(context, ref, transactions),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  filterChips(),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  pastTransactions(context, transactions),
+                ],
+              )),
             )),
-          )),
+      ),
     );
   }
 
@@ -98,93 +105,101 @@ class HomeScreen extends ConsumerWidget {
   Widget balanceCard(
     BuildContext context,
     WidgetRef ref,
+    List<Transaction> transactions,
   ) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Container(
-            width: (MediaQuery.of(context).size.width - 20) * .6,
-            decoration: BoxDecoration(
+    return SizedBox(
+      height: 200,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: (MediaQuery.of(context).size.width - 20) * .6,
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(.8),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Total Balance",
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    FittedBox(
+                      child: Text(
+                        "₹${ref.read(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Total Expenses",
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    FittedBox(
+                      child: Text(
+                        "₹${ref.read(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium!
+                            .copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                      ),
+                    ),
+                  ]),
+            ),
+            const Spacer(),
+            Material(
               color: Theme.of(context)
                   .colorScheme
-                  .primaryContainer
+                  .tertiaryContainer
                   .withOpacity(.8),
               borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(20),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                "Total Balance",
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const AddTransactionScreen();
+                  }));
+                },
+                borderRadius: BorderRadius.circular(30),
+                splashColor: Theme.of(context).colorScheme.tertiaryContainer,
+                highlightColor: Theme.of(context).colorScheme.tertiaryContainer,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  width: (MediaQuery.of(context).size.width - 20) * .3,
+                  height: double.infinity,
+                  child: Icon(MdiIcons.plus,
                       color: Theme.of(context).colorScheme.onBackground,
-                    ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              FittedBox(
-                child: Text(
-                  "₹${ref.read(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
-                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
+                      size: 50),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text(
-                "Total Expenses",
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              FittedBox(
-                child: Text(
-                  "₹${ref.read(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
-                ),
-              ),
-            ]),
-          ),
-          const Spacer(),
-          Material(
-            color:
-                Theme.of(context).colorScheme.tertiaryContainer.withOpacity(.8),
-            borderRadius: BorderRadius.circular(30),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const AddTransactionScreen();
-                }));
-              },
-              borderRadius: BorderRadius.circular(30),
-              splashColor: Theme.of(context).colorScheme.tertiaryContainer,
-              highlightColor: Theme.of(context).colorScheme.tertiaryContainer,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                width: (MediaQuery.of(context).size.width - 20) * .3,
-                height: double.infinity,
-                // decoration: BoxDecoration(
-                //   color: Theme.of(context).colorScheme.tertiaryContainer,
-                //   borderRadius: BorderRadius.circular(30),
-                // ),
-                // alignment: Alignment.center,
-                child: Icon(MdiIcons.plus,
-                    color: Theme.of(context).colorScheme.onBackground,
-                    size: 50),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -213,7 +228,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget pastTransactions(BuildContext context, WidgetRef ref) {
+  Widget pastTransactions(
+      BuildContext context, List<Transaction> transactions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -224,10 +240,7 @@ class HomeScreen extends ConsumerWidget {
         const SizedBox(
           height: 20,
         ),
-        ...ref
-            .watch(transactionProvider.notifier)
-            .get()
-            .reversed
+        ...transactions.reversed
             .map((e) => TransactionCard(transaction: e))
             .toList(),
       ],

@@ -13,11 +13,19 @@ class UserNotifier extends Notifier<User> {
   }
 
   void addAccount(Account account) {
-    state.accounts.add(account);
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: [...state.accounts, account]);
   }
 
   void removeAccount(Account account) {
-    state.accounts.remove(account);
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: state.accounts
+            .where((element) => element.id != account.id)
+            .toList());
   }
 
   void updateUser(User user) {

@@ -31,4 +31,14 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+router.get('/transactions', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.userId });
+    res.status(200).json(transactions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

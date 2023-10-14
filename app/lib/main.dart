@@ -19,8 +19,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' as sqflite_ffi;
 
 import 'package:spendwise/utils/fetch_all_data.dart';
 
-void main() async {
-  await dotenv.load(fileName: ".env");
+void main() {
+  dotenv.load(fileName: ".env.local");
+  // await dotenv.load(fileName: ".env.local");
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqflite_ffi.sqfliteFfiInit();
@@ -43,7 +44,31 @@ class MyApp extends ConsumerWidget {
         theme: AppTheme.lightTheme(lightDynamic),
         darkTheme: AppTheme.darkTheme(darkDynamic),
         home: AnimatedSplashScreen.withScreenFunction(
-            splash: MdiIcons.wallet,
+            splash: SizedBox(
+              width: 100,
+              height: 100,
+              child: Stack(
+                  alignment: Alignment.center,
+                  fit: StackFit.expand,
+                  children: [
+                    Center(
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Icon(
+                        MdiIcons.wallet,
+                        size: 50,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ]),
+            ),
             backgroundColor: Theme.of(context).colorScheme.surface,
             splashIconSize: 100,
             screenFunction: () async {

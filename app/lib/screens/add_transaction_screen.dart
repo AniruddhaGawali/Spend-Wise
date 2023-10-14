@@ -10,13 +10,16 @@ import 'package:spendwise/model/account.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
+import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:intl/intl.dart';
 
 import 'package:http/http.dart' as http;
 
 class AddTransactionScreen extends HookConsumerWidget {
-  const AddTransactionScreen({super.key});
+  const AddTransactionScreen({
+    super.key,
+  });
 
   addTransaction(
     WidgetRef ref,
@@ -28,7 +31,9 @@ class AddTransactionScreen extends HookConsumerWidget {
     ValueNotifier<TransactionCatergory> selectedCategory,
     ValueNotifier<Account> selectedAccount,
     ValueNotifier<TransactionType> selectedTransactionType,
+    ValueNotifier<bool> isLoading,
   ) async {
+    isLoading.value = true;
     String url = "${dotenv.env['API_URL']}/transaction/add";
 
     final transaction = {
@@ -52,6 +57,8 @@ class AddTransactionScreen extends HookConsumerWidget {
     );
 
     if (response.statusCode == 201) {
+      await fetchTransaction(ref);
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +70,8 @@ class AddTransactionScreen extends HookConsumerWidget {
             backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           ),
         );
-        Navigator.of(context).pop();
+
+        Navigator.pop(context, true);
       }
     } else {
       if (context.mounted) {
@@ -79,6 +87,7 @@ class AddTransactionScreen extends HookConsumerWidget {
         );
       }
     }
+    isLoading.value = false;
   }
 
   @override
@@ -98,131 +107,161 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedCategory =
         useState<TransactionCatergory>(TransactionCatergory.food);
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height - 40,
-          child: SingleChildScrollView(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const SizedBox(
-                height: 50,
-              ),
-              Text(
-                "Add Transaction",
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              SegmentedButton<TransactionType>(
-                segments: [
-                  ...TransactionType.values.reversed
-                      .map(
-                        (e) => ButtonSegment<TransactionType>(
-                          label: Text(
-                            e.toString().split('.').last[0].toUpperCase() +
-                                e.toString().split('.').last.substring(1),
-                          ),
-                          value: e,
-                        ),
-                      )
-                      .toList(),
-                ],
-                selected: {selectedTransactionType.value},
-                onSelectionChanged: (value) {
-                  value.first == TransactionType.expense
-                      ? selectedCategory.value = TransactionCatergory.food
-                      : selectedCategory.value = TransactionCatergory.account;
-                  selectedTransactionType.value = value.first;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                height: 50,
-                width: double.infinity,
-                child: ListView(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
+    final isLoading = useState<bool>(false);
+
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, false);
+        return true;
+      },
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 40,
+            child: SingleChildScrollView(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ...ref
-                        .read(userProvider)
-                        .accounts
-                        .map(
-                          (e) => CustomActionChip(
-                            label: e.name,
-                            icon: e.type.name == "cash"
-                                ? MdiIcons.cashMultiple
-                                : MdiIcons.bank,
-                            selected: selectedAccount.value == e,
-                            onPressed: () {
-                              selectedAccount.value = e;
-                            },
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    Text(
+                      "Add Transaction",
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineLarge!
+                          .copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
-                        )
-                        .toList()
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              formInput(
-                title,
-                amount,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              setDateTimeForm(
-                context,
-                selectedDate,
-                selectedTime,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              setCategory(selectedCategory, selectedTransactionType),
-              const SizedBox(
-                height: 40,
-              ),
-              SizedBox(
-                height: 50,
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    addTransaction(
-                        ref,
-                        context,
-                        title,
-                        amount,
-                        selectedDate,
-                        selectedTime,
-                        selectedCategory,
-                        selectedAccount,
-                        selectedTransactionType);
-                  },
-                  icon: Icon(
-                    MdiIcons.plus,
-                    size: 30,
-                  ),
-                  label: Text(
-                    "Add Transaction",
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onPrimary
-                            .withOpacity(0.8),
-                        fontWeight: FontWeight.w500),
-                  ),
-                ),
-              )
-            ]),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SegmentedButton<TransactionType>(
+                      segments: [
+                        ...TransactionType.values.reversed
+                            .map(
+                              (e) => ButtonSegment<TransactionType>(
+                                label: Text(
+                                  e
+                                          .toString()
+                                          .split('.')
+                                          .last[0]
+                                          .toUpperCase() +
+                                      e.toString().split('.').last.substring(1),
+                                ),
+                                value: e,
+                              ),
+                            )
+                            .toList(),
+                      ],
+                      selected: {selectedTransactionType.value},
+                      onSelectionChanged: (value) {
+                        value.first == TransactionType.expense
+                            ? selectedCategory.value = TransactionCatergory.food
+                            : selectedCategory.value =
+                                TransactionCatergory.account;
+                        selectedTransactionType.value = value.first;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: ListView(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          ...ref
+                              .watch(userProvider)
+                              .accounts
+                              .map(
+                                (e) => CustomActionChip(
+                                  label: e.name,
+                                  icon: e.type.name == "cash"
+                                      ? MdiIcons.cashMultiple
+                                      : MdiIcons.bank,
+                                  selected: selectedAccount.value == e,
+                                  onPressed: () {
+                                    selectedAccount.value = e;
+                                  },
+                                ),
+                              )
+                              .toList()
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    formInput(
+                      title,
+                      amount,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    setDateTimeForm(
+                      context,
+                      selectedDate,
+                      selectedTime,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    setCategory(selectedCategory, selectedTransactionType),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          addTransaction(
+                              ref,
+                              context,
+                              title,
+                              amount,
+                              selectedDate,
+                              selectedTime,
+                              selectedCategory,
+                              selectedAccount,
+                              selectedTransactionType,
+                              isLoading);
+                        },
+                        icon: isLoading.value
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(
+                                MdiIcons.plus,
+                                size: 30,
+                              ),
+                        label: Text(
+                          "Add Transaction",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary
+                                      .withOpacity(0.8),
+                                  fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    )
+                  ]),
+            ),
           ),
         ),
       ),

@@ -41,10 +41,14 @@ Future<bool> fetchData(WidgetRef ref) async {
         ref.read(userProvider.notifier).addAccount(account);
       }
 
+      List<Transaction> transactions = [];
+
       for (var element in transaction) {
         Transaction transaction = Transaction.fromJson(element, ref);
-        ref.read(transactionProvider.notifier).addTransaction(transaction);
+        transactions.add(transaction);
       }
+
+      ref.read(transactionProvider.notifier).set(transactions);
 
       return true;
     } catch (e) {
@@ -59,4 +63,42 @@ Future<bool> fetchData(WidgetRef ref) async {
     throw Exception(
         'Failed to fetch data. Status code: ${response.statusCode}');
   }
+}
+
+Future<bool> fetchTransaction(WidgetRef ref) async {
+  final url = "${dotenv.env['API_URL']}/all-data/transactions";
+
+  final response = await http.get(
+    Uri.parse(url),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}",
+    },
+  );
+
+  if (response.statusCode == 200) {
+    try {
+      final body = jsonDecode(response.body);
+      // print(body);
+      final transaction = body;
+
+      List<Transaction> transactions = [];
+
+      for (var element in transaction) {
+        Transaction transaction = Transaction.fromJson(element, ref);
+        transactions.add(transaction);
+      }
+
+      ref.read(transactionProvider.notifier).set(transactions);
+
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      rethrow;
+    }
+  }
+
+  return false;
 }
