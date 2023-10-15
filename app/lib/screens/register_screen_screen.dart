@@ -87,7 +87,7 @@ class RegisterScreeen extends StatelessWidget {
       bottomText: "Already have an account?",
       bottomButtonText: "Login",
       bottomWidget: const LoginScreen(),
-      nextScreen: AddAccountScreen(),
+      nextScreen: const AddAccountScreen(),
       onSubmit: _register,
     );
   }

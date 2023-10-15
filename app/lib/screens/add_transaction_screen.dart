@@ -15,7 +15,9 @@ import 'package:spendwise/widgits/action_chip.dart';
 import 'package:intl/intl.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:spendwise/widgits/loading.dart';
 
+// ignore: must_be_immutable
 class AddTransactionScreen extends HookConsumerWidget {
   TransactionCatergory? userSelectedCategory;
 
@@ -237,14 +239,14 @@ class AddTransactionScreen extends HookConsumerWidget {
                               isLoading);
                         },
                         icon: isLoading.value
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
+                                child: Loading(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   strokeWidth: 2,
-                                ),
-                              )
+                                ))
                             : Icon(
                                 MdiIcons.plus,
                                 size: 30,
@@ -255,10 +257,8 @@ class AddTransactionScreen extends HookConsumerWidget {
                               .textTheme
                               .titleLarge!
                               .copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimary
-                                      .withOpacity(0.8),
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   fontWeight: FontWeight.w500),
                         ),
                       ),
@@ -370,6 +370,7 @@ class AddTransactionScreen extends HookConsumerWidget {
     }
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
             child: InkWell(
@@ -399,9 +400,6 @@ class AddTransactionScreen extends HookConsumerWidget {
             ),
           ),
         )),
-        const SizedBox(
-          width: 10,
-        ),
         Expanded(
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
