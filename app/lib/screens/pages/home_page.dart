@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/data/constant_values.dart';
 import 'package:spendwise/model/transaction.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
@@ -9,7 +10,6 @@ import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
-import 'package:spendwise/widgits/action_chip.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 
 class HomeScreen extends HookConsumerWidget {
@@ -24,9 +24,9 @@ class HomeScreen extends HookConsumerWidget {
           await fetchData(ref);
         },
         child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(padding),
             child: SizedBox(
-              height: MediaQuery.of(context).size.height - 40,
+              height: MediaQuery.of(context).size.height - padding * 2,
               child: SingleChildScrollView(
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +193,7 @@ class HomeScreen extends HookConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  width: (MediaQuery.of(context).size.width - 20) * .3,
+                  width: (MediaQuery.of(context).size.width - 20) * .35,
                   height: double.infinity,
                   child: Icon(MdiIcons.plus,
                       color: Theme.of(context).colorScheme.onBackground,
@@ -210,29 +210,41 @@ class HomeScreen extends HookConsumerWidget {
   Widget filterChips(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 10,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           ...TransactionCatergory.values
-              .sublist(0, 6)
-              .map(
-                (e) => CustomActionChip(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AddTransactionScreen(
-                                  userSelectedCategory: e,
-                                )));
-                  },
-                  label: e.name[0].toUpperCase() +
-                      e.name.substring(1).toLowerCase(),
-                  icon: getTransactionCatergoryIcon(e),
-                  selected: true,
-                ),
-              )
+              .sublist(0, 5)
+              .map((e) => Ink(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(.8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddTransactionScreen(
+                                      userSelectedCategory: e,
+                                    )));
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      splashColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          getTransactionCatergoryIcon(e),
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  ))
               .toList()
         ],
       ),

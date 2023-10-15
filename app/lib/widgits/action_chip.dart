@@ -16,7 +16,7 @@ class CustomActionChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return ActionChip(
       label: Text(label,
-          style: Theme.of(context).textTheme.labelLarge!.copyWith(
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(
                 fontWeight: FontWeight.bold,
               )),
       avatar: icon != null ? Icon(icon) : null,

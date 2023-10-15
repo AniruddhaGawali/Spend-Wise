@@ -77,7 +77,7 @@ class RegisterScreeen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AuthWidgit(
+    return AuthWidget(
       isLogin: false,
       title: "Register",
       subTitle: "Welcome to SpendWise!",

@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/home_screen.dart';
+import 'package:spendwise/screens/pages/home_page.dart';
 import 'package:spendwise/screens/register_screen_screen.dart';
 
 import 'package:spendwise/utils/fetch_all_data.dart';
@@ -86,7 +86,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AuthWidgit(
+    return AuthWidget(
       isLogin: true,
       title: "Login",
       subTitle: "Welcome Back!",

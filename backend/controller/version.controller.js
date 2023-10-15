@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try {
     let latestUpdate = await Version.find({}).sort({ createdAt: -1 }).limit(1);
 
-    res.status(200).json( {latestUpdate} );
+    res.status(200).json({ latestUpdate });
   } catch (err) {
     console.log(err);
     res.status(400).json({
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 // it will add the update in the database
 
 router.post('/new', async (req, res) => {
-  let { version, update_link,description } = req.body;
+  let { version, update_link, description } = req.body;
 
   try {
     let update = new Version({
@@ -31,7 +31,7 @@ router.post('/new', async (req, res) => {
 
     await update.save();
 
-    res.status(200).json({update});
+    res.status(200).json(update);
   } catch (err) {
     console.log(err);
     res.status(400).json({

@@ -20,7 +20,7 @@ class _SettingScreenState extends State<SettingScreen> {
   String _version = "";
   bool _downloaded = true;
   String _update = "";
-  List<String>? _description;
+  List? _description;
   @override
   void initState() {
     super.initState();

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/data/constant_values.dart';
+import 'package:spendwise/utils/about_device.dart';
+import 'package:spendwise/widgits/loading.dart';
 
-class AuthWidgit extends ConsumerStatefulWidget {
+class AuthWidget extends HookConsumerWidget {
   final bool isLogin;
   final String title;
   final String subTitle;
@@ -16,7 +20,7 @@ class AuthWidgit extends ConsumerStatefulWidget {
   final Future<bool> Function(String username, String password, bool rememberMe,
       WidgetRef ref, BuildContext context)? onSubmit;
 
-  const AuthWidgit({
+  const AuthWidget({
     super.key,
     required this.isLogin,
     required this.title,
@@ -32,43 +36,45 @@ class AuthWidgit extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AuthWidgit> createState() => _AuthWidgitState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final statusBarHeight = getTopPadding(context);
 
-class _AuthWidgitState extends ConsumerState<AuthWidgit> {
-  final _formKey = GlobalKey<FormState>();
-  String _username = "";
-  String _password = "";
-  bool _rememberMe = false;
-  bool _isPasswordVisible = false;
+    final widgetHeight = isLandscape(context)
+        ? screenHeight
+        : screenHeight - statusBarHeight - 40;
 
-  @override
-  Widget build(BuildContext context) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+    final usernameController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final rememberMe = useState(false);
+    final isPasswordVisible = useState(false);
+    final isLoading = useState(false);
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(padding),
           child: SizedBox(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height - 40,
+            height: widgetHeight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: MediaQuery.of(context).padding.top + 40,
+                  height: getTopPadding(context) + padding * 2,
                 ),
                 Text(
-                  widget.title,
+                  title,
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: spacerHeight,
                 ),
                 Text(
-                  widget.subTitle,
+                  subTitle,
                   style: Theme.of(context).textTheme.displayLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
@@ -76,164 +82,183 @@ class _AuthWidgitState extends ConsumerState<AuthWidgit> {
                 ),
                 const Spacer(),
                 Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.description,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                              labelText: "Username",
-                              hintText: "Enter your username",
-                              icon: Icon(MdiIcons.accountCircleOutline),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              )),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter a username";
-                            }
-                            return null;
-                          },
-                          onSaved: (newValue) => setState(() {
-                            _username = newValue!;
-                          }),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          obscureText: _isPasswordVisible,
-                          decoration: InputDecoration(
-                              labelText: "Password",
-                              hintText: "Enter your password",
-                              icon: Icon(MdiIcons.lockOutline),
-                              suffixIcon: IconButton(
-                                icon: Icon(_isPasswordVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
-                                onPressed: () {
-                                  setState(
-                                    () {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    },
-                                  );
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              )),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter a password";
-                            }
-                            return null;
-                          },
-                          onSaved: (newValue) => setState(() {
-                            _password = newValue!;
-                          }),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Checkbox(
-                              value: _rememberMe,
-                              onChanged: (value) {
-                                setState(() {
-                                  _rememberMe = value!;
-                                });
-                              },
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        description,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            Text(
-                              "Remember Me",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                            ),
-                          ],
+                      ),
+                      const SizedBox(
+                        height: spacerHeight,
+                      ),
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                          labelText: "Username",
+                          hintText: "Enter your username",
+                          icon: Icon(MdiIcons.accountCircleOutline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a username";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: spacerHeight,
+                      ),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: isPasswordVisible.value,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          hintText: "Enter your password",
+                          icon: Icon(MdiIcons.lockOutline),
+                          suffixIcon: IconButton(
+                            icon: Icon(isPasswordVisible.value
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              isPasswordVisible.value =
+                                  !isPasswordVisible.value;
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.tonalIcon(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                _formKey.currentState!.save();
-                                if (widget.onSubmit != null) {
-                                  bool isSuccess = await widget.onSubmit!(
-                                    _username,
-                                    _password,
-                                    _rememberMe,
-                                    ref,
-                                    context,
-                                  );
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a password";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: spacerHeight,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Checkbox(
+                            value: rememberMe.value,
+                            onChanged: (value) {
+                              rememberMe.value = value ?? false;
+                            },
+                          ),
+                          Text(
+                            "Remember Me",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: spacerHeight,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.tonalIcon(
+                          onPressed: () async {
+                            isLoading.value = true;
+                            if (formKey.currentState!.validate()) {
+                              formKey.currentState!.save();
+                              if (onSubmit != null) {
+                                bool isSuccess = await onSubmit!(
+                                  usernameController.text,
+                                  passwordController.text,
+                                  rememberMe.value,
+                                  ref,
+                                  context,
+                                );
 
-                                  if (isSuccess) {
-                                    if (context.mounted) {
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              widget.nextScreen!,
-                                        ),
-                                      );
-                                    }
+                                if (isSuccess) {
+                                  if (context.mounted) {
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) => nextScreen!,
+                                      ),
+                                    );
                                   }
                                 }
                               }
-                            },
-                            icon: Icon(widget.buttonIcon),
-                            label: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                widget.buttonText,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge!
-                                    .copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      fontSize: 20,
-                                    ),
-                              ),
+                            }
+                            isLoading.value = false;
+                          },
+                          icon: isLoading.value
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: Loading(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(buttonIcon),
+                          label: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              buttonText,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge!
+                                  .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 20,
+                                  ),
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        widget.bottomButtonText != null &&
-                                widget.bottomButtonText!.isNotEmpty &&
-                                widget.bottomText != null &&
-                                widget.bottomText!.isNotEmpty &&
-                                widget.bottomWidget != null
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    widget.bottomText!,
+                      ),
+                      const SizedBox(
+                        height: spacerHeight,
+                      ),
+                      bottomButtonText != null &&
+                              bottomButtonText!.isNotEmpty &&
+                              bottomText != null &&
+                              bottomText!.isNotEmpty &&
+                              bottomWidget != null
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  bottomText!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) => bottomWidget!,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    bottomButtonText!,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyLarge!
@@ -241,36 +266,16 @@ class _AuthWidgitState extends ConsumerState<AuthWidgit> {
                                           fontWeight: FontWeight.w600,
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface,
+                                              .tertiary,
                                         ),
                                   ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              widget.bottomWidget!,
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      widget.bottomButtonText!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge!
-                                          .copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .tertiary,
-                                          ),
-                                    ),
-                                  )
-                                ],
-                              )
-                            : const SizedBox()
-                      ],
-                    ))
+                                )
+                              ],
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                )
               ],
             ),
           ),

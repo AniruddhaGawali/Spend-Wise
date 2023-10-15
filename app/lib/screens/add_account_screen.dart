@@ -4,19 +4,25 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/home_screen.dart';
+import 'package:spendwise/screens/pages/home_page.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:spendwise/widgits/loading.dart';
 
 class AddAccountScreen extends HookConsumerWidget {
-  AddAccountScreen({super.key});
-  final _formKey = GlobalKey<FormState>();
+  const AddAccountScreen({super.key});
 
   Future<bool> _createAccount(
-      String name, double balance, AccountType type, WidgetRef ref) async {
+    String name,
+    double balance,
+    AccountType type,
+    WidgetRef ref,
+    ValueNotifier<bool> isLoading,
+  ) async {
+    isLoading.value = true;
     final account = Account(id: '1', name: name, balance: balance, type: type);
     final url = "${dotenv.env['API_URL']}/user/add-account";
 
@@ -28,6 +34,7 @@ class AddAccountScreen extends HookConsumerWidget {
       },
       body: account.toJson(),
     );
+    isLoading.value = false;
 
     if (response.statusCode == 201) {
       return true;
@@ -38,9 +45,11 @@ class AddAccountScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
     final accountName = useState<String>("");
     final balance = useState<double>(0);
     final accountType = useState<AccountType>(AccountType.bank);
+    final isLoading = useState(false);
 
     return Scaffold(
       body: Padding(
@@ -50,7 +59,7 @@ class AddAccountScreen extends HookConsumerWidget {
             height: MediaQuery.of(context).size.height - 40,
             width: double.infinity,
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -139,92 +148,100 @@ class AddAccountScreen extends HookConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * .5,
-                    child: FilledButton.icon(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
+                  FilledButton.icon(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        formKey.currentState!.save();
 
-                          bool isAccountCreated = await _createAccount(
-                              accountName.value,
-                              balance.value,
-                              accountType.value,
-                              ref);
+                        bool isAccountCreated = await _createAccount(
+                            accountName.value,
+                            balance.value,
+                            accountType.value,
+                            ref,
+                            isLoading);
 
-                          if (isAccountCreated) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
+                        if (isAccountCreated) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Account created successfully!",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onTertiaryContainer,
-                                          )),
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .tertiaryContainer,
-                                ),
-                              );
-                            }
-
-                            await fetchData(ref);
-
-                            if (context.mounted) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
-                            }
-                          } else {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Account creation failed!",
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Account created successfully!",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
                                         .copyWith(
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onErrorContainer,
-                                        ),
-                                  ),
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .errorContainer,
+                                              .onTertiaryContainer,
+                                        )),
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .tertiaryContainer,
+                              ),
+                            );
+                          }
+
+                          await fetchData(ref);
+
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomeScreen(),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Account creation failed!",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onErrorContainer,
+                                      ),
                                 ),
-                              );
-                            }
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .errorContainer,
+                              ),
+                            );
                           }
                         }
-                      },
-                      icon: Icon(MdiIcons.bankPlus),
-                      label: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Add Account',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge!
-                                .copyWith(
-                                  fontSize: 20,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                )),
+                      }
+                    },
+                    icon: isLoading.value
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: Loading(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Icon(MdiIcons.bankPlus),
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
                       ),
+                      child: Text('Add Account',
+                          softWrap: false,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge!
+                              .copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              )),
                     ),
                   ),
                 ],

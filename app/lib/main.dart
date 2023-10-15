@@ -8,7 +8,6 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import 'package:spendwise/provider/token_provider.dart';
 
-import 'package:spendwise/screens/home_screen.dart';
 import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/screens/startup_screen.dart';
 import "package:spendwise/theme/app_theme.dart";
@@ -22,7 +21,7 @@ import 'package:spendwise/utils/fetch_all_data.dart';
 
 void main() {
   dotenv.load(fileName: ".env.local");
-  // await dotenv.load(fileName: ".env.local");
+  // dotenv.load(fileName: ".env");
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqflite_ffi.sqfliteFfiInit();
