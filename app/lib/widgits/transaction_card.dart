@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spendwise/model/transaction.dart';
+import 'package:spendwise/provider/monetary_units.dart';
 import 'package:spendwise/utils/get_date.dart';
 
-class TransactionCard extends StatelessWidget {
+class TransactionCard extends ConsumerWidget {
   final Transaction transaction;
 
   const TransactionCard({
@@ -11,7 +13,7 @@ class TransactionCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -94,7 +96,7 @@ class TransactionCard extends StatelessWidget {
                   SizedBox(
                     width: (MediaQuery.of(context).size.width - 80) * 0.45,
                     child: Text(
-                      '₹${transaction.amount.toStringAsFixed(2)}',
+                      '${ref.read(monetaryUnitProvider.notifier).get()}${transaction.amount.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             color: transaction.type == TransactionType.income
                                 ? Colors.green
