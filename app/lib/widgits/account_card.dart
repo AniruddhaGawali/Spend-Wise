@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/monetary_units.dart';
 
@@ -22,14 +23,43 @@ class AccountCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              account.name,
-              style: Theme.of(context).textTheme.bodyLarge,
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: Text(
+                        account.name,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                        softWrap: true,
+                      ),
+                    ),
+                    Text(
+                      account.type == AccountType.bank ? 'Bank' : 'Cash',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Icon(
+                  account.type == AccountType.bank
+                      ? MdiIcons.bank
+                      : MdiIcons.cash,
+                  color: account.type == AccountType.bank
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.tertiary,
+                  size: 30,
+                )
+              ],
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 20),
             Text(
               '${ref.read(monetaryUnitProvider.notifier).get()} ${account.balance.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
