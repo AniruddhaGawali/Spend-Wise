@@ -7,7 +7,11 @@ import 'package:spendwise/screens/register_screen_screen.dart';
 import 'package:spendwise/utils/about_device.dart';
 
 class StartupScreen extends ConsumerWidget {
-  const StartupScreen({super.key});
+  final Widget nextScreen;
+  const StartupScreen({
+    super.key,
+    required this.nextScreen,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,7 +68,7 @@ class StartupScreen extends ConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => const RegisterScreeen(),
+                        builder: (context) => nextScreen,
                       ),
                     );
                   },

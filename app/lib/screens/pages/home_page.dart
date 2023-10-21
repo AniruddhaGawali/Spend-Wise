@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/data/constant_values.dart';
 import 'package:spendwise/model/transaction.dart';
+import 'package:spendwise/provider/monetary_units.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
@@ -159,7 +160,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "₹${ref.read(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
+                        "${ref.read(monetaryUnitProvider.notifier).get()}${ref.read(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .displayMedium!
@@ -182,7 +183,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "₹${ref.read(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
+                        "${ref.read(monetaryUnitProvider.notifier).get()}${ref.read(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium!
@@ -301,19 +302,25 @@ class HomeScreen extends HookConsumerWidget {
           height: 20,
         ),
         ...transactions.map((e) => TransactionCard(transaction: e)).toList(),
-        Container(
-            margin: const EdgeInsets.only(top: 20),
-            width: MediaQuery.of(context).size.width * .25,
-            child: FilledButton.tonal(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const ViewAllTransactionScreen();
-                  }));
-                },
-                child: Text(
-                  "View All",
-                  style: Theme.of(context).textTheme.labelLarge!.copyWith(),
-                ))),
+        transactions.isNotEmpty
+            ? Container(
+                margin: const EdgeInsets.only(top: 20),
+                width: MediaQuery.of(context).size.width * .25,
+                child: FilledButton.tonal(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const ViewAllTransactionScreen();
+                      }));
+                    },
+                    child: Text(
+                      "View All",
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(),
+                    )))
+            : Text(
+                "No Transactions",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(),
+              ),
       ],
     );
   }

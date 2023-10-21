@@ -5,10 +5,13 @@ import 'package:dynamic_color/dynamic_color.dart';
 
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/provider/monetary_units.dart';
 
 import 'package:spendwise/provider/token_provider.dart';
 
 import 'package:spendwise/screens/main_screen.dart';
+import 'package:spendwise/screens/register_screen_screen.dart';
+import 'package:spendwise/screens/select_%20monetary_unit.dart';
 import 'package:spendwise/screens/startup_screen.dart';
 import "package:spendwise/theme/app_theme.dart";
 
@@ -75,15 +78,28 @@ class MyApp extends ConsumerWidget {
               bool isTokenLoaded =
                   await ref.read(tokenProvider.notifier).loadToken();
 
+              bool isMonetaryUnitLoaded =
+                  await ref.read(monetaryUnitProvider.notifier).loadUnit();
+
               bool isDataFetch = false;
 
               if (isTokenLoaded) {
                 isDataFetch = await fetchData(ref);
               }
 
-              return isTokenLoaded && isDataFetch
-                  ? MainScreen()
-                  : const StartupScreen();
+              if (isMonetaryUnitLoaded) {
+                if (isDataFetch && isTokenLoaded) {
+                  return MainScreen();
+                } else {
+                  return const StartupScreen(
+                    nextScreen: RegisterScreeen(),
+                  );
+                }
+              } else {
+                return const StartupScreen(
+                  nextScreen: SelectMonetaryUnitScreen(),
+                );
+              }
             }),
       ),
     );
