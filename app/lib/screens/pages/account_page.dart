@@ -13,12 +13,8 @@ class AllAccountsScreen extends ConsumerWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'All Accounts',
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium!
-                .copyWith(fontWeight: FontWeight.w500),
           ),
         ),
         body: ListView.builder(

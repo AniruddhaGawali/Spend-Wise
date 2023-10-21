@@ -33,7 +33,7 @@ class AccountCard extends ConsumerWidget {
                       child: Text(
                         account.name,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.bold,
                             ),
                         softWrap: true,
                       ),

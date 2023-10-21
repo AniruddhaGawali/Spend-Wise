@@ -102,6 +102,7 @@ class TransactionCard extends ConsumerWidget {
                                 ? Colors.green
                                 : Theme.of(context).colorScheme.error,
                             fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                       softWrap: false,
                       textAlign: TextAlign.right,

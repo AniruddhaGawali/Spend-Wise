@@ -25,21 +25,42 @@ class HomeScreen extends HookConsumerWidget {
         ref.watch(transactionProvider.notifier).transactionsofMonth();
     final isVisibile = useState(false);
     return Scaffold(
+      appBar: AppBar(
+          title: const Text(
+            "Home",
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const SettingScreen();
+                }));
+              },
+              icon: Icon(
+                MdiIcons.accountCircleOutline,
+                color: Theme.of(context).colorScheme.onBackground,
+                size: 30,
+              ),
+            )
+          ]),
       body: RefreshIndicator(
         onRefresh: () async {
           await fetchData(ref);
         },
         child: Padding(
-            padding: const EdgeInsets.all(padding),
+            padding: const EdgeInsets.only(
+              left: padding,
+              right: padding,
+            ),
             child: SizedBox(
-              height: MediaQuery.of(context).size.height - padding * 2,
+              height: MediaQuery.of(context).size.height,
               child: SingleChildScrollView(
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                    height: 40,
-                  ),
+                  // const SizedBox(
+                  //   height: 40,
+                  // ),
                   header(context, ref),
                   const SizedBox(
                     height: 40,
@@ -86,15 +107,9 @@ class HomeScreen extends HookConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Home",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onBackground),
-            ),
             Text(ref.read(userProvider.notifier).captalizeUsername(),
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onBackground,
                     )),
             Text(
@@ -108,19 +123,6 @@ class HomeScreen extends HookConsumerWidget {
             ),
           ],
         ),
-        const Spacer(),
-        IconButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return const SettingScreen();
-            }));
-          },
-          icon: Icon(
-            MdiIcons.accountCircleOutline,
-            color: Theme.of(context).colorScheme.onBackground,
-            size: 50,
-          ),
-        )
       ],
     );
   }
@@ -153,6 +155,7 @@ class HomeScreen extends HookConsumerWidget {
                       "Total Balance",
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(
@@ -176,10 +179,11 @@ class HomeScreen extends HookConsumerWidget {
                       "Total Expenses",
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 5,
                     ),
                     FittedBox(
                       child: Text(
@@ -294,9 +298,9 @@ class HomeScreen extends HookConsumerWidget {
           width: double.infinity,
           child: Text("All Transactions of Month",
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  )),
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Theme.of(context).colorScheme.onBackground,
+                  fontWeight: FontWeight.bold)),
         ),
         const SizedBox(
           height: 20,
@@ -305,7 +309,7 @@ class HomeScreen extends HookConsumerWidget {
         transactions.isNotEmpty
             ? Container(
                 margin: const EdgeInsets.only(top: 20),
-                width: MediaQuery.of(context).size.width * .25,
+                width: MediaQuery.of(context).size.width * .24,
                 child: FilledButton.tonal(
                     onPressed: () {
                       Navigator.push(context,
@@ -315,12 +319,17 @@ class HomeScreen extends HookConsumerWidget {
                     },
                     child: Text(
                       "View All",
-                      style: Theme.of(context).textTheme.labelLarge!.copyWith(),
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     )))
             : Text(
                 "No Transactions",
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(),
               ),
+        const SizedBox(
+          height: 80,
+        )
       ],
     );
   }
