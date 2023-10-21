@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/screens/pages/account_page.dart';
 import 'package:spendwise/screens/pages/home_page.dart';
 
 class MainScreen extends HookWidget {
@@ -17,14 +18,7 @@ class MainScreen extends HookWidget {
         onPageChanged: (value) => selectedIndex.value = value,
         children: [
           const HomeScreen(),
-          Container(
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              child: Center(
-                child: Text(
-                  'Comming Soon...',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-              )),
+          const AllAccountsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -45,9 +39,9 @@ class MainScreen extends HookWidget {
             ),
             label: 'Home',
           ),
-          NavigationDestination(
-            icon: Icon(MdiIcons.walletBifoldOutline),
-            selectedIcon: Icon(MdiIcons.walletBifold),
+          const NavigationDestination(
+            icon: Icon(Icons.wallet),
+            selectedIcon: Icon(Icons.wallet),
             label: 'Accounts',
           ),
         ],

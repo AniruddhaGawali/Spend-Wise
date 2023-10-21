@@ -1,8 +1,20 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
 enum AccountType {
   bank,
   cash,
+}
+
+IconData getAccountTypeIcon(AccountType type) {
+  switch (type) {
+    case AccountType.bank:
+      return MdiIcons.bankOutline;
+    case AccountType.cash:
+      return MdiIcons.cash;
+  }
 }
 
 class Account {
