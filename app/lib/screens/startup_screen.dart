@@ -81,6 +81,7 @@ class StartupScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                   ),

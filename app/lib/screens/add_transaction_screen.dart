@@ -138,26 +138,17 @@ class AddTransactionScreen extends HookConsumerWidget {
         return true;
       },
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Add Transaction"),
+        ),
         body: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SizedBox(
-            height: MediaQuery.of(context).size.height - 40,
+            height: MediaQuery.of(context).size.height,
             child: SingleChildScrollView(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    Text(
-                      "Add Transaction",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineLarge!
-                          .copyWith(
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                    ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -173,6 +164,12 @@ class AddTransactionScreen extends HookConsumerWidget {
                                           .last[0]
                                           .toUpperCase() +
                                       e.toString().split('.').last.substring(1),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 value: e,
                               ),
@@ -279,11 +276,14 @@ class AddTransactionScreen extends HookConsumerWidget {
                               .textTheme
                               .titleLarge!
                               .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.w500),
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ),
+                    ),
+                    const SizedBox(
+                      height: 50,
                     )
                   ]),
             ),
@@ -407,7 +407,7 @@ class AddTransactionScreen extends HookConsumerWidget {
               children: [
                 Icon(
                   MdiIcons.calendarMonthOutline,
-                  size: 30,
+                  size: 25,
                 ),
                 const SizedBox(
                   width: 10,
@@ -416,8 +416,8 @@ class AddTransactionScreen extends HookConsumerWidget {
                   DateFormat("dd/MM/yyyy").format(date.value),
                   style: Theme.of(context)
                       .textTheme
-                      .bodyLarge!
-                      .copyWith(fontWeight: FontWeight.w500),
+                      .bodyMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -435,7 +435,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                 children: [
                   Icon(
                     MdiIcons.clockOutline,
-                    size: 30,
+                    size: 25,
                   ),
                   const SizedBox(
                     width: 10,
@@ -443,8 +443,8 @@ class AddTransactionScreen extends HookConsumerWidget {
                   Text(time.value.format(context),
                       style: Theme.of(context)
                           .textTheme
-                          .bodyLarge!
-                          .copyWith(fontWeight: FontWeight.w500)),
+                          .bodyMedium!
+                          .copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
             ),

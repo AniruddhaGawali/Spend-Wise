@@ -69,14 +69,22 @@ class SelectMonetaryUnitScreen extends HookConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    monetaryUnit.toString().split('.').last,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text(monetaryUnit.toString().split('.').last,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            fontWeight:
+                                selectedMonetaryUnits.value == monetaryUnit
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                          )),
                   const SizedBox(width: 10),
                   Text(
                     monetaryUnitSymbol,
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          fontWeight:
+                              selectedMonetaryUnits.value == monetaryUnit
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                        ),
                   ),
                 ],
               ),
@@ -91,7 +99,9 @@ class SelectMonetaryUnitScreen extends HookConsumerWidget {
             children: [
               Text(
                 '${selectedMonetaryUnits.value.name}:  ${monetaryUnits[selectedMonetaryUnits.value]}',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const Spacer(),
               FilledButton(
@@ -110,7 +120,12 @@ class SelectMonetaryUnitScreen extends HookConsumerWidget {
                     );
                   }
                 },
-                child: const Text('Next'),
+                child: Text(
+                  'Next',
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           )),

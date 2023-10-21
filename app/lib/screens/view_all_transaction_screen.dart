@@ -30,7 +30,10 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
           ListTile(
             title: Text(
               '${getFullMonth(transaction.date.month)} ${transaction.date.year}',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         );

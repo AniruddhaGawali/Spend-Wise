@@ -218,10 +218,11 @@ class AuthWidget extends HookConsumerWidget {
                                   .textTheme
                                   .labelLarge!
                                   .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    fontSize: 20,
-                                  ),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

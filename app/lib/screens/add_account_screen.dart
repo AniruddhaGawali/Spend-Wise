@@ -64,12 +64,12 @@ class AddAccountScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).padding.top + 40,
+                    height: MediaQuery.of(context).padding.top,
                   ),
                   Text(
                     "Add Transaction",
                     style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                   ),
@@ -86,7 +86,7 @@ class AddAccountScreen extends HookConsumerWidget {
                   const Spacer(),
                   Text("Create a new account to add transactions.",
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Theme.of(context).colorScheme.tertiary,
                           )),
                   const SizedBox(
@@ -240,9 +240,10 @@ class AddAccountScreen extends HookConsumerWidget {
                               .textTheme
                               .labelLarge!
                               .copyWith(
-                                fontSize: 20,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              )),
+                                  fontSize: 20,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
