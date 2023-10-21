@@ -9,6 +9,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
@@ -62,7 +63,25 @@ class AddTransactionScreen extends HookConsumerWidget {
     );
 
     if (response.statusCode == 201) {
-      await fetchTransaction(ref);
+      // await fetchTransaction(ref);
+      final body = jsonDecode(response.body);
+      final transaction =
+          Transaction.fromJson(body as Map<String, dynamic>, ref);
+
+      ref.read(transactionProvider.notifier).addTransaction(transaction);
+
+      final account = ref
+          .read(userProvider)
+          .accounts
+          .firstWhere((element) => element.id == transaction.account.id);
+
+      if (transaction.type == TransactionType.expense) {
+        ref
+            .read(userProvider.notifier)
+            .removeAmount(account, transaction.amount);
+      } else {
+        ref.read(userProvider.notifier).addAmount(account, transaction.amount);
+      }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -292,6 +311,7 @@ class AddTransactionScreen extends HookConsumerWidget {
           height: 10,
         ),
         TextFormField(
+          maxLength: 10,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: "Amount",

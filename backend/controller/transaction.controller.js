@@ -47,9 +47,9 @@ router.post('/add', auth, async (req, res) => {
       }
     );
 
-    await res.status(201).json({
-      message: 'New Transaction created and added to user successfully',
-    });
+    await res.status(201).json(
+     newTransaction
+  );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

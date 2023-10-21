@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/data/constant_values.dart';
@@ -11,13 +12,16 @@ import 'package:spendwise/screens/setting_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
 import 'package:spendwise/widgits/transaction_card.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(transactionProvider);
+    final transactions =
+        ref.watch(transactionProvider.notifier).transactionsofMonth();
+    final isVisibile = useState(false);
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
@@ -38,7 +42,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  balanceCard(context, ref, transactions),
+                  balanceCard(context, ref, transactions, isVisibile),
                   const SizedBox(
                     height: 20,
                   ),
@@ -53,6 +57,21 @@ class HomeScreen extends HookConsumerWidget {
               )),
             )),
       ),
+      floatingActionButton: isVisibile.value
+          ? FloatingActionButton.large(
+              backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddTransactionScreen();
+                }));
+              },
+              child: Icon(
+                MdiIcons.plus,
+                size: 40,
+                color: Theme.of(context).colorScheme.onTertiaryContainer,
+              ),
+            )
+          : null,
     );
   }
 
@@ -108,6 +127,7 @@ class HomeScreen extends HookConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     List<Transaction> transactions,
+    ValueNotifier<bool> isVisible,
   ) {
     return SizedBox(
       height: 200,
@@ -173,31 +193,43 @@ class HomeScreen extends HookConsumerWidget {
                   ]),
             ),
             const Spacer(),
-            Material(
-              color: Theme.of(context)
-                  .colorScheme
-                  .tertiaryContainer
-                  .withOpacity(.8),
-              borderRadius: BorderRadius.circular(30),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddTransactionScreen()));
-                },
+            VisibilityDetector(
+              key: const Key("add_transaction_button"),
+              onVisibilityChanged: (visibilityInfo) {
+                double visiblePercentage = visibilityInfo.visibleFraction * 100;
+                if (visiblePercentage > 60) {
+                  isVisible.value = false;
+                } else {
+                  isVisible.value = true;
+                }
+              },
+              child: Material(
+                color: Theme.of(context)
+                    .colorScheme
+                    .tertiaryContainer
+                    .withOpacity(.8),
                 borderRadius: BorderRadius.circular(30),
-                splashColor: Theme.of(context).colorScheme.tertiaryContainer,
-                highlightColor: Theme.of(context).colorScheme.tertiaryContainer,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddTransactionScreen()));
+                  },
+                  borderRadius: BorderRadius.circular(30),
+                  splashColor: Theme.of(context).colorScheme.tertiaryContainer,
+                  highlightColor:
+                      Theme.of(context).colorScheme.tertiaryContainer,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    width: (MediaQuery.of(context).size.width - 20) * .35,
+                    height: double.infinity,
+                    child: Icon(MdiIcons.plus,
+                        color: Theme.of(context).colorScheme.onBackground,
+                        size: 50),
                   ),
-                  width: (MediaQuery.of(context).size.width - 20) * .35,
-                  height: double.infinity,
-                  child: Icon(MdiIcons.plus,
-                      color: Theme.of(context).colorScheme.onBackground,
-                      size: 50),
                 ),
               ),
             ),
@@ -254,18 +286,29 @@ class HomeScreen extends HookConsumerWidget {
   Widget pastTransactions(
       BuildContext context, List<Transaction> transactions) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text("All Transactions",
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                )),
+        SizedBox(
+          width: double.infinity,
+          child: Text("All Transactions of Month",
+              textAlign: TextAlign.left,
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )),
+        ),
         const SizedBox(
           height: 20,
         ),
-        ...transactions.reversed
-            .map((e) => TransactionCard(transaction: e))
-            .toList(),
+        ...transactions.map((e) => TransactionCard(transaction: e)).toList(),
+        Container(
+            margin: const EdgeInsets.only(top: 20),
+            width: MediaQuery.of(context).size.width * .25,
+            child: FilledButton.tonal(
+                onPressed: () {},
+                child: Text(
+                  "View All",
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(),
+                ))),
       ],
     );
   }

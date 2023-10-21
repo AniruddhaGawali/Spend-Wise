@@ -110,6 +110,7 @@ class AddAccountScreen extends HookConsumerWidget {
                     height: 10,
                   ),
                   TextFormField(
+                    maxLength: 10,
                     decoration: InputDecoration(
                       labelText: 'Balance',
                       border: OutlineInputBorder(

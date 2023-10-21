@@ -29,9 +29,15 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceVariant,
-      elevation: 0,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
@@ -41,7 +47,7 @@ class TransactionCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 40) * 0.5,
+              width: (MediaQuery.of(context).size.width - 40) * 0.65,
               child: Row(
                 children: [
                   CircleAvatar(
@@ -53,15 +59,19 @@ class TransactionCard extends StatelessWidget {
                       size: MediaQuery.of(context).size.width * 0.07,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.03,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FittedBox(
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.43,
                         child: Text(
                           transaction.title,
                           textAlign: TextAlign.left,
-                          style: Theme.of(context).textTheme.titleLarge,
+                          softWrap: true,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -95,20 +105,22 @@ class TransactionCard extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 80) * 0.5,
+              width: (MediaQuery.of(context).size.width - 80) * 0.4,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  FittedBox(
-                    child: Text('₹${transaction.amount.toStringAsFixed(2)}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(
-                              color: transaction.type == TransactionType.income
-                                  ? Colors.green
-                                  : Theme.of(context).colorScheme.error,
-                            )),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 80) * 0.4,
+                    child: Text(
+                      '₹${transaction.amount.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: transaction.type == TransactionType.income
+                                ? Colors.green
+                                : Theme.of(context).colorScheme.error,
+                            fontSize: 16,
+                          ),
+                      textAlign: TextAlign.right,
+                    ),
                   ),
                   Text(
                     '${transaction.date.day} ${getMonth(transaction.date.month)} ${transaction.date.year}, ${transaction.date.hour}:${transaction.date.minute}',

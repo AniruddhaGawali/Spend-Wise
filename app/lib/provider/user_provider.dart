@@ -28,6 +28,36 @@ class UserNotifier extends Notifier<User> {
             .toList());
   }
 
+  void addAmount(Account account, double amount) {
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: state.accounts
+            .map((e) => e.id == account.id
+                ? Account(
+                    id: e.id,
+                    name: e.name,
+                    type: e.type,
+                    balance: e.balance + amount)
+                : e)
+            .toList());
+  }
+
+  void removeAmount(Account account, double amount) {
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: state.accounts
+            .map((e) => e.id == account.id
+                ? Account(
+                    id: e.id,
+                    name: e.name,
+                    type: e.type,
+                    balance: e.balance - amount)
+                : e)
+            .toList());
+  }
+
   void updateUser(User user) {
     state = user;
   }
