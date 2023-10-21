@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendwise/model/transaction.dart';
+import 'package:spendwise/utils/get_date.dart';
 
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
@@ -8,24 +9,6 @@ class TransactionCard extends StatelessWidget {
     Key? key,
     required this.transaction,
   }) : super(key: key);
-
-  String getMonth(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'June',
-      'July',
-      'Aug',
-      'Sept',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    return months[month - 1];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +30,16 @@ class TransactionCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 40) * 0.65,
+              width: (MediaQuery.of(context).size.width - 40) * 0.6,
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.06,
+                    radius: 25,
                     backgroundColor: Theme.of(context).colorScheme.surfaceTint,
                     child: Icon(
                       getTransactionCatergoryIcon(transaction.category),
                       color: Theme.of(context).colorScheme.onSecondary,
-                      size: MediaQuery.of(context).size.width * 0.07,
+                      size: 25,
                     ),
                   ),
                   SizedBox(
@@ -66,7 +49,7 @@ class TransactionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.43,
+                        width: MediaQuery.of(context).size.width * 0.39,
                         child: Text(
                           transaction.title,
                           textAlign: TextAlign.left,
@@ -81,7 +64,7 @@ class TransactionCard extends StatelessWidget {
                           vertical: 3.0,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceTint,
+                          color: Theme.of(context).colorScheme.surfaceVariant,
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         child: Text(
@@ -89,14 +72,13 @@ class TransactionCard extends StatelessWidget {
                               transaction.category.name
                                   .substring(1)
                                   .toLowerCase(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall!
-                              .copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                                fontSize: 10,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall!.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    fontSize: 10,
+                                  ),
                         ),
                       )
                     ],
@@ -105,12 +87,12 @@ class TransactionCard extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 80) * 0.4,
+              width: (MediaQuery.of(context).size.width - 80) * 0.45,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) * 0.4,
+                    width: (MediaQuery.of(context).size.width - 80) * 0.45,
                     child: Text(
                       '₹${transaction.amount.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -119,6 +101,7 @@ class TransactionCard extends StatelessWidget {
                                 : Theme.of(context).colorScheme.error,
                             fontSize: 16,
                           ),
+                      softWrap: false,
                       textAlign: TextAlign.right,
                     ),
                   ),

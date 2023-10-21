@@ -40,6 +40,7 @@ const transactionSchema = new mongoose.Schema(
         'investments',
         'travel',
         'other',
+        'account'
       ],
       required: true,
     },

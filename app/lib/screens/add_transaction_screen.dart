@@ -11,7 +11,6 @@ import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
-import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:intl/intl.dart';
 

@@ -9,6 +9,7 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
+import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
 import 'package:spendwise/widgits/transaction_card.dart';
@@ -304,7 +305,11 @@ class HomeScreen extends HookConsumerWidget {
             margin: const EdgeInsets.only(top: 20),
             width: MediaQuery.of(context).size.width * .25,
             child: FilledButton.tonal(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const ViewAllTransactionScreen();
+                  }));
+                },
                 child: Text(
                   "View All",
                   style: Theme.of(context).textTheme.labelLarge!.copyWith(),

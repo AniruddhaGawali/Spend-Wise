@@ -5,6 +5,7 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
   TransactionNotifier() : super([]);
 
   List<Transaction> get() => state;
+  List<Transaction> getSorted() => sortByDate(state);
 
   void set(List<Transaction> transactions) {
     state = transactions;
