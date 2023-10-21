@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/pages/home_page.dart';
+import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -189,7 +189,7 @@ class AddAccountScreen extends HookConsumerWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomeScreen(),
+                                builder: (context) => MainScreen(),
                               ),
                             );
                           }

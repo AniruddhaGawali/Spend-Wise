@@ -202,15 +202,19 @@ class AddTransactionScreen extends HookConsumerWidget {
                               .watch(userProvider)
                               .accounts
                               .map(
-                                (e) => CustomActionChip(
-                                  label: e.name,
-                                  icon: e.type.name == "cash"
-                                      ? MdiIcons.cashMultiple
-                                      : MdiIcons.bank,
-                                  selected: selectedAccount.value == e,
-                                  onPressed: () {
-                                    selectedAccount.value = e;
-                                  },
+                                (e) => Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: CustomActionChip(
+                                    label: e.name,
+                                    icon: e.type == AccountType.cash
+                                        ? MdiIcons.cashMultiple
+                                        : MdiIcons.bank,
+                                    selected: selectedAccount.value == e,
+                                    onPressed: () {
+                                      selectedAccount.value = e;
+                                    },
+                                  ),
                                 ),
                               )
                               .toList()
