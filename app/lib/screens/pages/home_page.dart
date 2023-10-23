@@ -314,6 +314,7 @@ class HomeScreen extends HookConsumerWidget {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return ViewAllTransactionScreen(
+                          title: "All Transactions",
                           transactions: ref
                               .read(transactionProvider.notifier)
                               .getSorted(),

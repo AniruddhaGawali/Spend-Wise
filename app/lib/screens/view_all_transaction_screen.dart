@@ -7,10 +7,12 @@ import 'package:spendwise/widgits/transaction_card.dart';
 // ignore: must_be_immutable
 class ViewAllTransactionScreen extends HookConsumerWidget {
   List<Transaction> transactions;
+  String title;
 
   ViewAllTransactionScreen({
     super.key,
     required this.transactions,
+    required this.title,
   });
 
   @override
@@ -51,7 +53,7 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Transactions'),
+        title: Text(title),
       ),
       body: ListView(
         children: transactionListWithTitles,
