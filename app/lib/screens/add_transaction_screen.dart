@@ -313,11 +313,15 @@ class AddTransactionScreen extends HookConsumerWidget {
                                   strokeWidth: 2,
                                 ))
                             : Icon(
-                                MdiIcons.plus,
+                                editTransaction == null
+                                    ? MdiIcons.plus
+                                    : MdiIcons.update,
                                 size: 30,
                               ),
                         label: Text(
-                          "Add Transaction",
+                          editTransaction == null
+                              ? "Add Transaction"
+                              : "Update Transaction",
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge!
