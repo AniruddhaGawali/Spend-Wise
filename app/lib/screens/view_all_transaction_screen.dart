@@ -55,8 +55,11 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      body: ListView(
-        children: transactionListWithTitles,
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: ListView(
+          children: transactionListWithTitles,
+        ),
       ),
     );
   }

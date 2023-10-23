@@ -83,7 +83,8 @@ class AddTransactionScreen extends HookConsumerWidget {
       "category": selectedCategory.value.name,
       "date": DateTime(date.value.year, date.value.month, date.value.day,
               time.value.hour, time.value.minute)
-          .toIso8601String()
+          .toUtc()
+          .toString()
     };
 
     http.Response response;
@@ -439,7 +440,6 @@ class AddTransactionScreen extends HookConsumerWidget {
           }
           return;
         }
-
         time.value = picked;
       }
     }
