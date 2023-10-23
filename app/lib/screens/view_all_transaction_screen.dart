@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:spendwise/provider/transaction_provider.dart';
+import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/utils/get_date.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 
+// ignore: must_be_immutable
 class ViewAllTransactionScreen extends HookConsumerWidget {
-  const ViewAllTransactionScreen({
+  List<Transaction> transactions;
+
+  ViewAllTransactionScreen({
     super.key,
+    required this.transactions,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(transactionProvider.notifier).getSorted();
-
     // Create a list to store the modified list of transactions with titles
     List<Widget> transactionListWithTitles = [];
 

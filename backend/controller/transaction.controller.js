@@ -3,7 +3,6 @@ const express = require('express');
 const Transaction = require('../model/transaction.model');
 const Account = require('../model/account.model');
 const auth = require('../middleware/auth.middleware');
-const { set } = require('mongoose');
 
 const router = express.Router();
 
@@ -47,9 +46,64 @@ router.post('/add', auth, async (req, res) => {
       }
     );
 
-    await res.status(201).json(
-     newTransaction
-  );
+    await res.status(201).json(newTransaction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/update/:id', auth, async (req, res) => {
+  try {
+    const { title, accountId, type, amount, category, date } = req.body;
+    const userId = req.userId;
+    const id = req.params.id;
+    let tDate = new Date(date);
+
+    const oldTransaction = await Transaction.findById(id);
+
+    // Create new account
+    const newTransaction = new Transaction({
+      id: id,
+      title,
+      accountId,
+      type,
+      amount,
+      category,
+      userId,
+      date: tDate,
+    });
+
+    // Save account to database
+    await Transaction.updateOne({ _id: id }, newTransaction);
+
+    if (oldTransaction.amount > amount) {
+      await Account.updateOne(
+        { _id: accountId },
+        {
+          $inc: {
+            balance:
+              type === 'income'
+                ? -(oldTransaction.amount - amount)
+                : +(oldTransaction.amount - amount),
+          },
+        }
+      );
+    } else {
+      await Account.updateOne(
+        { _id: accountId },
+        {
+          $inc: {
+            balance:
+              type === 'income'
+                ? +(amount - oldTransaction.amount)
+                : -(amount - oldTransaction.amount),
+          },
+        }
+      );
+    }
+
+    await res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

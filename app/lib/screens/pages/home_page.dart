@@ -75,7 +75,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  pastTransactions(context, transactions),
+                  pastTransactions(context, transactions, ref),
                 ],
               )),
             )),
@@ -290,7 +290,7 @@ class HomeScreen extends HookConsumerWidget {
   }
 
   Widget pastTransactions(
-      BuildContext context, List<Transaction> transactions) {
+      BuildContext context, List<Transaction> transactions, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -309,16 +309,20 @@ class HomeScreen extends HookConsumerWidget {
         transactions.isNotEmpty
             ? Container(
                 margin: const EdgeInsets.only(top: 20),
-                width: MediaQuery.of(context).size.width * .24,
                 child: FilledButton.tonal(
                     onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return const ViewAllTransactionScreen();
+                        return ViewAllTransactionScreen(
+                          transactions: ref
+                              .read(transactionProvider.notifier)
+                              .getSorted(),
+                        );
                       }));
                     },
                     child: Text(
                       "View All",
+                      softWrap: false,
                       style: Theme.of(context).textTheme.labelMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                           ),

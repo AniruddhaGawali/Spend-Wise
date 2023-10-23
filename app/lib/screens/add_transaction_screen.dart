@@ -20,11 +20,43 @@ import 'package:spendwise/widgits/loading.dart';
 // ignore: must_be_immutable
 class AddTransactionScreen extends HookConsumerWidget {
   TransactionCatergory? userSelectedCategory;
+  Transaction? editTransaction;
 
   AddTransactionScreen({
     super.key,
     this.userSelectedCategory,
+    this.editTransaction,
   });
+
+  setTransaction(WidgetRef ref, Transaction transaction) {
+    if (editTransaction != null) {
+      ref
+          .read(transactionProvider.notifier)
+          .removeTransaction(editTransaction!);
+    }
+    ref.read(transactionProvider.notifier).addTransaction(transaction);
+
+    final account = ref
+        .read(userProvider)
+        .accounts
+        .firstWhere((element) => element.id == transaction.account.id);
+
+    if (transaction.type == TransactionType.expense) {
+      if (editTransaction != null) {
+        ref
+            .read(userProvider.notifier)
+            .addAmount(account, editTransaction!.amount);
+      }
+      ref.read(userProvider.notifier).removeAmount(account, transaction.amount);
+    } else {
+      if (editTransaction != null) {
+        ref
+            .read(userProvider.notifier)
+            .removeAmount(account, editTransaction!.amount);
+      }
+      ref.read(userProvider.notifier).addAmount(account, transaction.amount);
+    }
+  }
 
   addTransaction(
     WidgetRef ref,
@@ -39,9 +71,11 @@ class AddTransactionScreen extends HookConsumerWidget {
     ValueNotifier<bool> isLoading,
   ) async {
     isLoading.value = true;
-    String url = "${dotenv.env['API_URL']}/transaction/add";
+    String url = editTransaction == null
+        ? "${dotenv.env['API_URL']}/transaction/add"
+        : "${dotenv.env['API_URL']}/transaction/update/${editTransaction!.id}";
 
-    final transaction = {
+    final createTransaction = {
       "title": title.value,
       "accountId": selectedAccount.value.id,
       "type": selectedTransactionType.value.name,
@@ -52,14 +86,27 @@ class AddTransactionScreen extends HookConsumerWidget {
           .toIso8601String()
     };
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-      },
-      body: jsonEncode(transaction),
-    );
+    http.Response response;
+
+    if (editTransaction == null) {
+      response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+        },
+        body: jsonEncode(createTransaction),
+      );
+    } else {
+      response = await http.put(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+        },
+        body: jsonEncode(createTransaction),
+      );
+    }
 
     if (response.statusCode == 201) {
       // await fetchTransaction(ref);
@@ -67,26 +114,16 @@ class AddTransactionScreen extends HookConsumerWidget {
       final transaction =
           Transaction.fromJson(body as Map<String, dynamic>, ref);
 
-      ref.read(transactionProvider.notifier).addTransaction(transaction);
-
-      final account = ref
-          .read(userProvider)
-          .accounts
-          .firstWhere((element) => element.id == transaction.account.id);
-
-      if (transaction.type == TransactionType.expense) {
-        ref
-            .read(userProvider.notifier)
-            .removeAmount(account, transaction.amount);
-      } else {
-        ref.read(userProvider.notifier).addAmount(account, transaction.amount);
-      }
+      setTransaction(ref, transaction);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Transaction added successfully!",
+            content: Text(
+                editTransaction == null
+                    ? "Transaction added successfully!"
+                    : "Transaction updated successfully!",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
                     )),
@@ -101,7 +138,10 @@ class AddTransactionScreen extends HookConsumerWidget {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Transaction addition failed!",
+            content: Text(
+                editTransaction == null
+                    ? "Transaction addition failed!"
+                    : "Transaction updation failed!",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onErrorContainer,
                     )),
@@ -115,20 +155,26 @@ class AddTransactionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedTransactionType =
-        useState<TransactionType>(TransactionType.expense);
+    final selectedTransactionType = useState<TransactionType>(
+        editTransaction?.type ?? TransactionType.expense);
 
-    final selectedAccount =
-        useState<Account>(ref.read(userProvider).accounts.first);
+    final selectedAccount = useState<Account>(
+        editTransaction?.account ?? ref.read(userProvider).accounts.first);
 
-    final title = useState<String>("");
-    final amount = useState<double>(0);
+    final title = useState<String>(editTransaction?.title ?? "");
+    final amount = useState<double>(editTransaction?.amount ?? 0);
 
-    final selectedDate = useState<DateTime>(DateTime.now());
-    final selectedTime = useState<TimeOfDay>(TimeOfDay.now());
+    final selectedDate =
+        useState<DateTime>(editTransaction?.date ?? DateTime.now());
+    final selectedTime = useState<TimeOfDay>(editTransaction?.date != null
+        ? TimeOfDay.fromDateTime(editTransaction!.date)
+        : TimeOfDay.now());
 
     final selectedCategory = useState<TransactionCatergory>(
-        userSelectedCategory ?? TransactionCatergory.food);
+      editTransaction?.category ??
+          userSelectedCategory ??
+          TransactionCatergory.food,
+    );
 
     final isLoading = useState<bool>(false);
 
@@ -139,7 +185,7 @@ class AddTransactionScreen extends HookConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Add Transaction"),
+          title: Text(editTransaction?.title ?? "Add Transaction"),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -301,6 +347,7 @@ class AddTransactionScreen extends HookConsumerWidget {
         child: Column(
       children: [
         TextFormField(
+          initialValue: title.value,
           decoration: InputDecoration(
             labelText: "Title",
             hintText: "Enter title of transaction",
@@ -314,6 +361,7 @@ class AddTransactionScreen extends HookConsumerWidget {
           height: 10,
         ),
         TextFormField(
+          initialValue: amount.value.toString(),
           maxLength: 10,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
