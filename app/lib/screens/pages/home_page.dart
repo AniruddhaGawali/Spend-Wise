@@ -107,7 +107,7 @@ class HomeScreen extends HookConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(ref.read(userProvider.notifier).captalizeUsername(),
+            Text(ref.watch(userProvider.notifier).captalizeUsername(),
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onBackground,
@@ -163,7 +163,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "${ref.read(monetaryUnitProvider.notifier).get()}${ref.read(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
+                        "${ref.watch(monetaryUnitProvider.notifier).get()}${ref.watch(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .displayMedium!
@@ -187,7 +187,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "${ref.read(monetaryUnitProvider.notifier).get()}${ref.read(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
+                        "${ref.watch(monetaryUnitProvider.notifier).get()}${ref.watch(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium!
