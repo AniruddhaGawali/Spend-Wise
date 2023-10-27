@@ -88,4 +88,16 @@ class Transaction {
       date: DateTime.parse(json["date"]).toLocal(),
     );
   }
+
+  toJson() {
+    return {
+      "_id": id,
+      "title": title,
+      "amount": amount,
+      "accountId": account.id,
+      "type": type.toString().split(".").last,
+      "category": category.toString().split(".").last,
+      "date": date.toUtc().toIso8601String(),
+    };
+  }
 }

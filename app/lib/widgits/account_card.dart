@@ -26,9 +26,9 @@ class AccountCard extends ConsumerWidget {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return ViewAllTransactionScreen(
               transactions: ref
-                  .read(transactionProvider.notifier)
+                  .watch(transactionProvider.notifier)
                   .getSorted()
-                  .where((element) => element.account == account)
+                  .where((element) => element.account.id == account.id)
                   .toList(),
               title: account.name,
             );
