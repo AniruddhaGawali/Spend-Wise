@@ -15,24 +15,37 @@ import 'package:spendwise/utils/fetch_all_data.dart';
 
 import 'package:spendwise/widgits/transaction_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum transactionFilter {
+enum TransactionFilter {
   byMonth,
   byWeek,
 }
 
 class HomeScreen extends HookConsumerWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final future = useMemoized(SharedPreferences.getInstance);
+    final snapshot = useFuture(future, initialData: null);
+
     final isVisibile = useState(false);
+    final filter = useState(TransactionFilter.byMonth);
+    final transactions = filter.value == TransactionFilter.byMonth
+        ? ref.watch(transactionProvider.notifier).transactionsofMonth()
+        : ref.watch(transactionProvider.notifier).transactionofWeek();
 
-    final filter = useState(transactionFilter.byMonth);
-
-    final transactions = useState<List<Transaction>>(
-      ref.watch(transactionProvider.notifier).transactionsofMonth(),
-    );
+    useEffect(() {
+      final preferences = snapshot.data;
+      if (preferences == null) {
+        return;
+      }
+      filter.value = preferences.getString('filter') == "week"
+          ? TransactionFilter.byWeek
+          : TransactionFilter.byMonth;
+    }, [snapshot.data]);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,7 +88,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  balanceCard(context, ref, transactions.value, isVisibile),
+                  balanceCard(context, ref, transactions, isVisibile),
                   const SizedBox(
                     height: 20,
                   ),
@@ -301,8 +314,8 @@ class HomeScreen extends HookConsumerWidget {
 
   Widget pastTransactions(
     BuildContext context,
-    ValueNotifier<List<Transaction>> transactions,
-    ValueNotifier<transactionFilter> filter,
+    List<Transaction> transactions,
+    ValueNotifier<TransactionFilter> filter,
     WidgetRef ref,
   ) {
     void setFilter() {
@@ -321,12 +334,13 @@ class HomeScreen extends HookConsumerWidget {
                               color: Theme.of(context).colorScheme.onBackground,
                               fontWeight: FontWeight.bold,
                             )),
-                    onTap: () {
-                      filter.value = transactionFilter.byMonth;
-                      transactions.value = ref
-                          .watch(transactionProvider.notifier)
-                          .transactionsofMonth();
-                      Navigator.pop(context);
+                    onTap: () async {
+                      filter.value = TransactionFilter.byMonth;
+                      final SharedPreferences prefs = await _prefs;
+                      prefs.setString("filter", "month");
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     },
                   ),
                   ListTile(
@@ -337,12 +351,13 @@ class HomeScreen extends HookConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                     ),
-                    onTap: () {
-                      filter.value = transactionFilter.byWeek;
-                      transactions.value = ref
-                          .watch(transactionProvider.notifier)
-                          .transactionofWeek();
-                      Navigator.pop(context);
+                    onTap: () async {
+                      filter.value = TransactionFilter.byWeek;
+                      final SharedPreferences prefs = await _prefs;
+                      prefs.setString("filter", "week");
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     },
                   ),
                 ],
@@ -353,7 +368,7 @@ class HomeScreen extends HookConsumerWidget {
 
     double getTotalExpenses() {
       double total = 0;
-      for (var transaction in transactions.value) {
+      for (var transaction in transactions) {
         if (transaction.type == TransactionType.expense) {
           total -= transaction.amount;
         } else {
@@ -382,7 +397,7 @@ class HomeScreen extends HookConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        filter.value == transactionFilter.byMonth
+                        filter.value == TransactionFilter.byMonth
                             ? "All Transactions of Month"
                             : "All Transactions of Week",
                         textAlign: TextAlign.left,
@@ -414,10 +429,8 @@ class HomeScreen extends HookConsumerWidget {
         const SizedBox(
           height: 20,
         ),
-        ...transactions.value
-            .map((e) => TransactionCard(transaction: e))
-            .toList(),
-        transactions.value.isNotEmpty
+        ...transactions.map((e) => TransactionCard(transaction: e)).toList(),
+        transactions.isNotEmpty
             ? Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: FilledButton.tonal(
