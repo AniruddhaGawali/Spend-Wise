@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
@@ -13,7 +16,8 @@ import 'package:http/http.dart' as http;
 import 'package:spendwise/widgits/loading.dart';
 
 class AddAccountScreen extends HookConsumerWidget {
-  const AddAccountScreen({super.key});
+  final Account? account;
+  const AddAccountScreen({super.key, this.account});
 
   Future<bool> _createAccount(
     String name,
@@ -43,12 +47,49 @@ class AddAccountScreen extends HookConsumerWidget {
     }
   }
 
+  Future<bool> _updateAccount(
+    Account oldAccount,
+    String name,
+    double balance,
+    AccountType type,
+    WidgetRef ref,
+    ValueNotifier<bool> isLoading,
+  ) async {
+    isLoading.value = true;
+    final account =
+        Account(id: oldAccount.id, name: name, balance: balance, type: type);
+    final url = "${dotenv.env['API_URL']}/account/update/${oldAccount.id}";
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}",
+      },
+      body: account.toJson(),
+    );
+    isLoading.value = false;
+
+    if (response.statusCode == 201) {
+      Map body = jsonDecode(response.body);
+
+      ref
+          .read(userProvider.notifier)
+          .updateAccount(Account.fromJson(body['account']));
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(() => GlobalKey<FormState>());
-    final accountName = useState<String>("");
-    final balance = useState<double>(0);
-    final accountType = useState<AccountType>(AccountType.bank);
+    final accountName = useState<String>(account?.name ?? "");
+    final balance = useState<double>(account?.balance ?? 0);
+    final accountType =
+        useState<AccountType>(account?.type ?? AccountType.bank);
     final isLoading = useState(false);
 
     return Scaffold(
@@ -67,7 +108,7 @@ class AddAccountScreen extends HookConsumerWidget {
                     height: MediaQuery.of(context).padding.top,
                   ),
                   Text(
-                    "Add Transaction",
+                    account == null ? "Add Transaction" : "Update Transaction",
                     style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.tertiary,
@@ -93,6 +134,7 @@ class AddAccountScreen extends HookConsumerWidget {
                     height: 20,
                   ),
                   TextFormField(
+                    initialValue: accountName.value,
                     decoration: InputDecoration(
                         labelText: 'Account Name',
                         border: OutlineInputBorder(
@@ -110,6 +152,7 @@ class AddAccountScreen extends HookConsumerWidget {
                     height: 10,
                   ),
                   TextFormField(
+                    initialValue: balance.value.toString(),
                     maxLength: 10,
                     decoration: InputDecoration(
                       labelText: 'Balance',
@@ -154,12 +197,22 @@ class AddAccountScreen extends HookConsumerWidget {
                       if (formKey.currentState!.validate()) {
                         formKey.currentState!.save();
 
-                        bool isAccountCreated = await _createAccount(
-                            accountName.value,
-                            balance.value,
-                            accountType.value,
-                            ref,
-                            isLoading);
+                        bool isAccountCreated = account == null
+                            ? await _createAccount(
+                                accountName.value,
+                                balance.value,
+                                accountType.value,
+                                ref,
+                                isLoading,
+                              )
+                            : await _updateAccount(
+                                account!,
+                                accountName.value,
+                                balance.value,
+                                accountType.value,
+                                ref,
+                                isLoading,
+                              );
 
                         if (isAccountCreated) {
                           if (context.mounted) {
@@ -183,15 +236,17 @@ class AddAccountScreen extends HookConsumerWidget {
                             );
                           }
 
-                          await fetchData(ref);
+                          account ?? await fetchData(ref);
 
                           if (context.mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MainScreen(),
-                              ),
-                            );
+                            account == null
+                                ? Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MainScreen(),
+                                    ),
+                                  )
+                                : Navigator.pop(context);
                           }
                         } else {
                           if (context.mounted) {
@@ -228,13 +283,16 @@ class AddAccountScreen extends HookConsumerWidget {
                               strokeWidth: 2,
                             ),
                           )
-                        : Icon(MdiIcons.bankPlus),
+                        : Icon(account == null
+                            ? MdiIcons.bankPlus
+                            : MdiIcons.update),
                     label: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 8,
                       ),
-                      child: Text('Add Account',
+                      child: Text(
+                          account == null ? 'Add Account' : "Update Account",
                           softWrap: false,
                           style: Theme.of(context)
                               .textTheme
