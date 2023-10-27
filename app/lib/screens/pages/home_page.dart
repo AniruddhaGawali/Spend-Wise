@@ -45,6 +45,7 @@ class HomeScreen extends HookConsumerWidget {
       filter.value = preferences.getString('filter') == "week"
           ? TransactionFilter.byWeek
           : TransactionFilter.byMonth;
+      return null;
     }, [snapshot.data]);
 
     return Scaffold(

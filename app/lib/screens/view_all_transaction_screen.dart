@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spendwise/model/transaction.dart';
+import 'package:spendwise/provider/monetary_units.dart';
 import 'package:spendwise/utils/get_date.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 
@@ -15,7 +16,7 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
     required this.title,
   });
 
-  List<Widget> getTransactionList(BuildContext context) {
+  List<Widget> getTransactionList(BuildContext context, WidgetRef ref) {
     List<Widget> transactionListWithTitles = [];
 
     String currentMonthYear = ''; // To keep track of the current month and year
@@ -43,7 +44,7 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
                     .copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
-                '\$${monthExpence.abs().toStringAsFixed(2)}',
+                '${ref.watch(monetaryUnitProvider.notifier).get()}${monthExpence.abs().toStringAsFixed(2)}',
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: monthExpence >= 0
@@ -109,7 +110,7 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: ListView(
-          children: getTransactionList(context),
+          children: getTransactionList(context, ref),
         ),
       ),
     );
