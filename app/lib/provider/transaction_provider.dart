@@ -37,6 +37,40 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
         .toList());
   }
 
+  List<Transaction> transactionofWeek() {
+    return sortByDate(state
+        .where((element) =>
+            element.date.isAfter(DateTime.now().subtract(Duration(days: 7))))
+        .toList());
+  }
+
+  double totalExpensesByMonth(int month) {
+    double total = 0;
+    for (var transaction in state) {
+      if (transaction.type == TransactionType.expense &&
+          transaction.date.month == month) {
+        total -= transaction.amount;
+      }
+      if (transaction.type == TransactionType.income &&
+          transaction.date.month == month) {
+        total += transaction.amount;
+      }
+    }
+    return total;
+  }
+
+  double totalExpensesByWeek() {
+    double total = 0;
+    for (var transaction in state) {
+      if (transaction.type == TransactionType.expense &&
+          transaction.date
+              .isAfter(DateTime.now().subtract(Duration(days: 7)))) {
+        total += transaction.amount;
+      }
+    }
+    return total;
+  }
+
   List<Transaction> transactionsByMonth(int month) {
     return sortByDate(
         state.where((element) => element.date.month == month).toList());

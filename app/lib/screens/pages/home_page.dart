@@ -16,14 +16,24 @@ import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/transaction_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+enum transactionFilter {
+  byMonth,
+  byWeek,
+}
+
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions =
-        ref.watch(transactionProvider.notifier).transactionsofMonth();
     final isVisibile = useState(false);
+
+    final filter = useState(transactionFilter.byMonth);
+
+    final transactions = useState<List<Transaction>>(
+      ref.watch(transactionProvider.notifier).transactionsofMonth(),
+    );
+
     return Scaffold(
       appBar: AppBar(
           title: const Text(
@@ -65,7 +75,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  balanceCard(context, ref, transactions, isVisibile),
+                  balanceCard(context, ref, transactions.value, isVisibile),
                   const SizedBox(
                     height: 20,
                   ),
@@ -75,7 +85,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  pastTransactions(context, transactions, ref),
+                  pastTransactions(context, transactions, filter, ref),
                 ],
               )),
             )),
@@ -290,23 +300,124 @@ class HomeScreen extends HookConsumerWidget {
   }
 
   Widget pastTransactions(
-      BuildContext context, List<Transaction> transactions, WidgetRef ref) {
+    BuildContext context,
+    ValueNotifier<List<Transaction>> transactions,
+    ValueNotifier<transactionFilter> filter,
+    WidgetRef ref,
+  ) {
+    void setFilter() {
+      showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(10),
+              height: 160,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text("Transactions of Month",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontWeight: FontWeight.bold,
+                            )),
+                    onTap: () {
+                      filter.value = transactionFilter.byMonth;
+                      transactions.value = ref
+                          .watch(transactionProvider.notifier)
+                          .transactionsofMonth();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Transactions of Week",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    onTap: () {
+                      filter.value = transactionFilter.byWeek;
+                      transactions.value = ref
+                          .watch(transactionProvider.notifier)
+                          .transactionofWeek();
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          });
+    }
+
+    double getTotalExpenses() {
+      double total = 0;
+      for (var transaction in transactions.value) {
+        if (transaction.type == TransactionType.expense) {
+          total -= transaction.amount;
+        } else {
+          total += transaction.amount;
+        }
+      }
+
+      return total;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
           width: double.infinity,
-          child: Text("All Transactions of Month",
-              textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                  fontWeight: FontWeight.bold)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  setFilter();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Text(
+                        filter.value == transactionFilter.byMonth
+                            ? "All Transactions of Month"
+                            : "All Transactions of Week",
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Icon(
+                        MdiIcons.unfoldMoreHorizontal,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Text(
+                "${ref.watch(monetaryUnitProvider.notifier).get()}${getTotalExpenses().abs().toStringAsFixed(2)}",
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: getTotalExpenses() >= 0
+                          ? Colors.green
+                          : Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(
           height: 20,
         ),
-        ...transactions.map((e) => TransactionCard(transaction: e)).toList(),
-        transactions.isNotEmpty
+        ...transactions.value
+            .map((e) => TransactionCard(transaction: e))
+            .toList(),
+        transactions.value.isNotEmpty
             ? Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: FilledButton.tonal(
