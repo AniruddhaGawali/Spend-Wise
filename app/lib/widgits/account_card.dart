@@ -3,15 +3,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/monetary_units.dart';
-import 'package:spendwise/provider/transaction_provider.dart';
-import 'package:spendwise/screens/view_all_transaction_screen.dart';
 
 class AccountCard extends ConsumerWidget {
   final Account account;
+  final void Function()? onClick;
 
   const AccountCard({
     Key? key,
     required this.account,
+    required this.onClick,
   }) : super(key: key);
 
   @override
@@ -22,18 +22,7 @@ class AccountCard extends ConsumerWidget {
           : Theme.of(context).colorScheme.tertiaryContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ViewAllTransactionScreen(
-              transactions: ref
-                  .read(transactionProvider.notifier)
-                  .getSorted()
-                  .where((element) => element.account == account)
-                  .toList(),
-              title: account.name,
-            );
-          }));
-        },
+        onTap: onClick,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

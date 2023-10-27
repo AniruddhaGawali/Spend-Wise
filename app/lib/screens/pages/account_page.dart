@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/add_account_screen.dart';
+import 'package:spendwise/screens/edit_account_screen.dart';
+import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/widgits/account_card.dart';
 
 class AllAccountsScreen extends ConsumerWidget {
@@ -16,6 +20,16 @@ class AllAccountsScreen extends ConsumerWidget {
           title: const Text(
             'All Accounts',
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const EditAccounts();
+                }));
+              },
+              icon: Icon(MdiIcons.squareEditOutline),
+            )
+          ],
         ),
         body: ListView.builder(
           itemCount: accounts.length,
@@ -25,6 +39,20 @@ class AllAccountsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(8),
                 child: AccountCard(
                   account: account,
+                  onClick: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ViewAllTransactionScreen(
+                        transactions: ref
+                            .watch(transactionProvider.notifier)
+                            .getSorted()
+                            .where(
+                                (element) => element.account.id == account.id)
+                            .toList(),
+                        title: account.name,
+                      );
+                    }));
+                  },
                 ));
           },
         ),

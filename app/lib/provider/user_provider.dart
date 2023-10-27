@@ -19,6 +19,21 @@ class UserNotifier extends Notifier<User> {
         accounts: [...state.accounts, account]);
   }
 
+  void updateAccount(Account account) {
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: state.accounts
+            .map((e) => e.id == account.id
+                ? Account(
+                    id: e.id,
+                    name: account.name,
+                    type: account.type,
+                    balance: account.balance)
+                : e)
+            .toList());
+  }
+
   void removeAccount(Account account) {
     state = User(
         id: state.id,

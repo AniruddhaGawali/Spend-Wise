@@ -23,8 +23,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' as sqflite_ffi;
 import 'package:spendwise/utils/fetch_all_data.dart';
 
 void main() {
-  // dotenv.load(fileName: ".env.local");
-  dotenv.load(fileName: ".env");
+  dotenv.load(fileName: ".env.local");
+  // dotenv.load(fileName: ".env");
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqflite_ffi.sqfliteFfiInit();
