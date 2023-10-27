@@ -46,7 +46,7 @@ router.post('/add', auth, async (req, res) => {
       }
     );
 
-    await res.status(201).json(newTransaction);
+    res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -103,7 +103,7 @@ router.put('/update/:id', auth, async (req, res) => {
       );
     }
 
-    await res.status(201).json(newTransaction);
+    res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
