@@ -9,7 +9,7 @@ const Account = require("../model/account.model");
 router.put("/update/:id", auth, async (req, res) => {
   try {
     // get the balance and name from the request body
-    const { balance, name } = req.body;
+    const { balance, name, type } = req.body;
     const id = req.params.id;
 
     // find the account by id
@@ -21,6 +21,7 @@ router.put("/update/:id", auth, async (req, res) => {
     if (accounts) {
       accounts.balance = balance;
       accounts.name = name;
+      accounts.type = type;
       flag = true;
       await accounts.save();
     }
@@ -31,7 +32,6 @@ router.put("/update/:id", auth, async (req, res) => {
     } else {
       res.status(500).send("Server Error");
     }
-    
   } catch (error) {
     console.error(error);
     res.status(500).send("Server Error");
