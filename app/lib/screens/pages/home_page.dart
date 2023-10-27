@@ -15,15 +15,38 @@ import 'package:spendwise/utils/fetch_all_data.dart';
 
 import 'package:spendwise/widgits/transaction_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+enum TransactionFilter {
+  byMonth,
+  byWeek,
+}
 
 class HomeScreen extends HookConsumerWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions =
-        ref.watch(transactionProvider.notifier).transactionsofMonth();
+    final future = useMemoized(SharedPreferences.getInstance);
+    final snapshot = useFuture(future, initialData: null);
+
     final isVisibile = useState(false);
+    final filter = useState(TransactionFilter.byMonth);
+    final transactions = filter.value == TransactionFilter.byMonth
+        ? ref.watch(transactionProvider.notifier).transactionsofMonth()
+        : ref.watch(transactionProvider.notifier).transactionofWeek();
+
+    useEffect(() {
+      final preferences = snapshot.data;
+      if (preferences == null) {
+        return;
+      }
+      filter.value = preferences.getString('filter') == "week"
+          ? TransactionFilter.byWeek
+          : TransactionFilter.byMonth;
+    }, [snapshot.data]);
+
     return Scaffold(
       appBar: AppBar(
           title: const Text(
@@ -75,7 +98,7 @@ class HomeScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 40,
                   ),
-                  pastTransactions(context, transactions, ref),
+                  pastTransactions(context, transactions, filter, ref),
                 ],
               )),
             )),
@@ -290,17 +313,118 @@ class HomeScreen extends HookConsumerWidget {
   }
 
   Widget pastTransactions(
-      BuildContext context, List<Transaction> transactions, WidgetRef ref) {
+    BuildContext context,
+    List<Transaction> transactions,
+    ValueNotifier<TransactionFilter> filter,
+    WidgetRef ref,
+  ) {
+    void setFilter() {
+      showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(10),
+              height: 160,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text("Transactions of Month",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontWeight: FontWeight.bold,
+                            )),
+                    onTap: () async {
+                      filter.value = TransactionFilter.byMonth;
+                      final SharedPreferences prefs = await _prefs;
+                      prefs.setString("filter", "month");
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Transactions of Week",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    onTap: () async {
+                      filter.value = TransactionFilter.byWeek;
+                      final SharedPreferences prefs = await _prefs;
+                      prefs.setString("filter", "week");
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          });
+    }
+
+    double getTotalExpenses() {
+      double total = 0;
+      for (var transaction in transactions) {
+        if (transaction.type == TransactionType.expense) {
+          total -= transaction.amount;
+        } else {
+          total += transaction.amount;
+        }
+      }
+
+      return total;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
           width: double.infinity,
-          child: Text("All Transactions of Month",
-              textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                  fontWeight: FontWeight.bold)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  setFilter();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Text(
+                        filter.value == TransactionFilter.byMonth
+                            ? "All Transactions of Month"
+                            : "All Transactions of Week",
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Icon(
+                        MdiIcons.unfoldMoreHorizontal,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Text(
+                "${ref.watch(monetaryUnitProvider.notifier).get()}${getTotalExpenses().abs().toStringAsFixed(2)}",
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: getTotalExpenses() >= 0
+                          ? Colors.green
+                          : Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(
           height: 20,
