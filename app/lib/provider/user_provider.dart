@@ -12,6 +12,8 @@ class UserNotifier extends Notifier<User> {
     state = user;
   }
 
+  User get() => state;
+
   void addAccount(Account account) {
     state = User(
         id: state.id,
@@ -91,6 +93,10 @@ class UserNotifier extends Notifier<User> {
       total += account.balance;
     }
     return total;
+  }
+
+  void logout() {
+    state = User(id: "", username: "", accounts: []);
   }
 }
 

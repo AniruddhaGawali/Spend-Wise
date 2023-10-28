@@ -10,6 +10,7 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
+import 'package:spendwise/screens/user_detail_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
@@ -45,6 +46,7 @@ class HomeScreen extends HookConsumerWidget {
       filter.value = preferences.getString('filter') == "week"
           ? TransactionFilter.byWeek
           : TransactionFilter.byMonth;
+      return null;
     }, [snapshot.data]);
 
     return Scaffold(
@@ -56,7 +58,7 @@ class HomeScreen extends HookConsumerWidget {
             IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const SettingScreen();
+                  return const UserDetailScreen();
                 }));
               },
               icon: Icon(
@@ -64,7 +66,14 @@ class HomeScreen extends HookConsumerWidget {
                 color: Theme.of(context).colorScheme.onBackground,
                 size: 30,
               ),
-            )
+            ),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const SettingScreen();
+                  }));
+                },
+                icon: Icon(MdiIcons.cog))
           ]),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -408,6 +417,7 @@ class HomeScreen extends HookConsumerWidget {
                       Icon(
                         MdiIcons.unfoldMoreHorizontal,
                         color: Theme.of(context).colorScheme.onBackground,
+                        size: 20,
                       ),
                     ],
                   ),

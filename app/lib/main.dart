@@ -97,7 +97,9 @@ class MyApp extends ConsumerWidget {
                 }
               } else {
                 return const StartupScreen(
-                  nextScreen: SelectMonetaryUnitScreen(),
+                  nextScreen: SelectMonetaryUnitScreen(
+                    nextPage: RegisterScreeen(),
+                  ),
                 );
               }
             }),
