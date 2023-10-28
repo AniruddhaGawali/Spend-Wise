@@ -110,6 +110,7 @@ class SelectMonetaryUnitScreen extends HookConsumerWidget {
                       .read(monetaryUnitProvider.notifier)
                       .set(monetaryUnits[selectedMonetaryUnits.value]!);
 
+                  await ref.read(monetaryUnitProvider.notifier).deleteUnit();
                   await ref.read(monetaryUnitProvider.notifier).saveUnit();
 
                   if (context.mounted) {

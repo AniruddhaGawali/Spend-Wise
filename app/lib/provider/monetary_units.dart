@@ -44,6 +44,7 @@ class MonetaryUnitNotfier extends Notifier<String> {
       return false;
     } else {
       state = data.first['unit'].toString();
+      print(data);
       return true;
     }
   }
