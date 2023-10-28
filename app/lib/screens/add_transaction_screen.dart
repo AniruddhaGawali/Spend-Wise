@@ -159,8 +159,11 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedTransactionType = useState<TransactionType>(
         editTransaction?.type ?? TransactionType.expense);
 
-    final selectedAccount = useState<Account>(
-        editTransaction?.account ?? ref.read(userProvider).accounts.first);
+    final selectedAccount = useState<Account>(editTransaction != null
+        ? ref
+            .read(userProvider.notifier)
+            .getAccountById(editTransaction!.account.id)
+        : ref.read(userProvider).accounts.first);
 
     final title = useState<String>(editTransaction?.title ?? "");
     final amount = useState<double>(editTransaction?.amount ?? 0);

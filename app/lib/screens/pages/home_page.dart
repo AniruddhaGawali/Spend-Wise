@@ -409,6 +409,7 @@ class HomeScreen extends HookConsumerWidget {
                       Icon(
                         MdiIcons.unfoldMoreHorizontal,
                         color: Theme.of(context).colorScheme.onBackground,
+                        size: 20,
                       ),
                     ],
                   ),
