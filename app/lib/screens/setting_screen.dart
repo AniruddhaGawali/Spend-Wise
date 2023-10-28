@@ -1,227 +1,113 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_file_downloader/flutter_file_downloader.dart';
-import 'package:spendwise/widgits/buttet_points.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SettingScreen extends StatefulWidget {
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/provider/monetary_units.dart';
+import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/provider/user_provider.dart';
+import 'package:spendwise/screens/login_screen.dart';
+import 'package:spendwise/screens/select_%20monetary_unit.dart';
+
+import 'package:spendwise/widgits/update_card.dart';
+
+class SettingScreen extends ConsumerWidget {
   const SettingScreen({super.key});
 
   @override
-  State<SettingScreen> createState() => _SettingScreenState();
-}
-
-class _SettingScreenState extends State<SettingScreen> {
-  String _version = "";
-  bool _downloaded = true;
-  String _update = "";
-  List? _description;
-  @override
-  void initState() {
-    super.initState();
-    getVersion();
-  }
-
-  Future<void> _showMyDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Update is Downloaded'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                  'The update is downloaded and ready to be installed.',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                Text(
-                  'Please install it manually.',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FilledButton.tonal(
-              onPressed: () {
-                Navigator.of(context).pop();
-                SystemNavigator.pop();
-              },
-              child: Text(
-                'Approve',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  getVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String version = packageInfo.version;
-
-    setState(() {
-      _version = version;
-    });
-
-    Map update = await checkUpdate();
-
-    if (update.isNotEmpty) {
-      if (_version != update['version']) {
-        setState(() {
-          _update = update['update_link'];
-          _description = update['description'];
-        });
-      }
-    }
-  }
-
-  // ignore: non_constant_identifier_names
-  Future<Map> checkUpdate() async {
-    final url = "${dotenv.env['API_URL']}";
-
-    http.Response response = await http.get(Uri.parse("$url/version"));
-
-    Map<String, dynamic> result = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      return result['latestUpdate'][0];
-    }
-
-    return {};
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Settings"),
+      ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
           child: SingleChildScrollView(
-            child: Column(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(50),
-                    margin: const EdgeInsets.symmetric(horizontal: 30),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "SpendWise",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge!
-                              .copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                  fontWeight: FontWeight.w600),
+                  const UpdateCard(),
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 50,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
                         ),
-                        Text(
-                          "v$_version",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer,
-                                fontWeight: FontWeight.w400,
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const SelectMonetaryUnitScreen(),
                               ),
+                            );
+                          },
+                          title: const Text("Monetary Unit"),
+                          trailing: Text(
+                            ref.read(monetaryUnitProvider.notifier).get(),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Column(
-                          children: [
-                            _description != null
-                                ? Column(
-                                    children: [
-                                      Text("New Update Features",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge!
-                                              .copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimaryContainer,
-                                                  fontWeight: FontWeight.w600)),
-                                      ..._description!
-                                          .map((e) => BulletsPoints(
-                                                text: e,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 10),
-                                              ))
-                                          .toList()
-                                    ],
-                                  )
-                                : const SizedBox(),
-                          ],
+                        child: ListTile(
+                          onTap: () {
+                            ref.read(tokenProvider.notifier).deleteToken();
+                            ref.read(userProvider.notifier).logout();
+
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          title: Text(
+                            "Logout",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                          ),
+                          trailing: Icon(
+                            MdiIcons.logout,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FilledButton.icon(
-                            onPressed: _update.isNotEmpty
-                                ? () {
-                                    FileDownloader.downloadFile(
-                                      url: _update,
-                                      onProgress: (fileName, progress) {
-                                        setState(() {
-                                          _downloaded = false;
-                                        });
-                                      },
-                                      onDownloadCompleted: (fileName) {
-                                        setState(() {
-                                          _downloaded = true;
-                                        });
-                                        _showMyDialog();
-                                      },
-                                    );
-                                  }
-                                : null,
-                            icon: _downloaded
-                                ? Icon(MdiIcons.update)
-                                : SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator.adaptive(
-                                      strokeCap: StrokeCap.butt,
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Theme.of(context).colorScheme.onPrimary,
-                                      ),
-                                    ),
-                                  ),
-                            label: _downloaded
-                                ? const Text("Update")
-                                : const Text("Downloading"))
-                      ],
-                    ),
+                      ),
+                    ],
                   )
-                ]),
+                ],
+              ),
+            ),
           ),
         ),
       ),

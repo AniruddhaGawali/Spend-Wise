@@ -20,7 +20,8 @@ enum MonetaryUnit {
 }
 
 class SelectMonetaryUnitScreen extends HookConsumerWidget {
-  const SelectMonetaryUnitScreen({super.key});
+  final Widget? nextPage;
+  const SelectMonetaryUnitScreen({super.key, this.nextPage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,15 +114,34 @@ class SelectMonetaryUnitScreen extends HookConsumerWidget {
                   await ref.read(monetaryUnitProvider.notifier).saveUnit();
 
                   if (context.mounted) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreeen(),
+                    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Monetary Unit Saved',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
                       ),
                     );
+
+                    nextPage != null
+                        ? Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => nextPage!,
+                            ),
+                          )
+                        : Navigator.of(context).pop();
                   }
                 },
                 child: Text(
-                  'Next',
+                  nextPage != null ? 'Next' : "Save",
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.bold),

@@ -92,6 +92,10 @@ class UserNotifier extends Notifier<User> {
     }
     return total;
   }
+
+  void logout() {
+    state = User(id: "", username: "", accounts: []);
+  }
 }
 
 final userProvider = NotifierProvider<UserNotifier, User>(() {

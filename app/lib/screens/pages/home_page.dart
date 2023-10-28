@@ -57,7 +57,7 @@ class HomeScreen extends HookConsumerWidget {
             IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const SettingScreen();
+                  return SettingScreen();
                 }));
               },
               icon: Icon(
@@ -65,7 +65,14 @@ class HomeScreen extends HookConsumerWidget {
                 color: Theme.of(context).colorScheme.onBackground,
                 size: 30,
               ),
-            )
+            ),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SettingScreen();
+                  }));
+                },
+                icon: Icon(MdiIcons.cog))
           ]),
       body: RefreshIndicator(
         onRefresh: () async {
