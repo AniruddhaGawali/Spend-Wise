@@ -12,6 +12,8 @@ class UserNotifier extends Notifier<User> {
     state = user;
   }
 
+  User get() => state;
+
   void addAccount(Account account) {
     state = User(
         id: state.id,

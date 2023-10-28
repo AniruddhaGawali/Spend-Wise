@@ -10,6 +10,7 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/add_transaction_screen.dart';
 import 'package:spendwise/screens/setting_screen.dart';
+import 'package:spendwise/screens/user_detail_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
@@ -57,7 +58,7 @@ class HomeScreen extends HookConsumerWidget {
             IconButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SettingScreen();
+                  return const UserDetailScreen();
                 }));
               },
               icon: Icon(
@@ -69,7 +70,7 @@ class HomeScreen extends HookConsumerWidget {
             IconButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return SettingScreen();
+                    return const SettingScreen();
                   }));
                 },
                 icon: Icon(MdiIcons.cog))
