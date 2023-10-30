@@ -25,88 +25,83 @@ class SettingScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const UpdateCard(),
-                  Column(
-                    children: [
-                      const SizedBox(
-                        height: 50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const UpdateCard(),
+                Column(
+                  children: [
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onBackground
+                                .withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground
-                                  .withOpacity(0.1),
-                              width: 1,
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const SelectMonetaryUnitScreen(),
                             ),
-                          ),
-                        ),
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const SelectMonetaryUnitScreen(),
-                              ),
-                            );
-                          },
-                          title: const Text("Monetary Unit"),
-                          trailing: Text(
-                            ref.read(monetaryUnitProvider.notifier).get(),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
+                          );
+                        },
+                        title: const Text("Monetary Unit"),
+                        trailing: Text(
+                          ref.read(monetaryUnitProvider.notifier).get(),
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
-                      const SizedBox(
-                        height: 30,
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.errorContainer,
+                      child: ListTile(
+                        onTap: () {
+                          ref.read(tokenProvider.notifier).deleteToken();
+                          ref.read(userProvider.notifier).logout();
+
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        shape: BeveledRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: ListTile(
-                          onTap: () {
-                            ref.read(tokenProvider.notifier).deleteToken();
-                            ref.read(userProvider.notifier).logout();
-
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
-                              ),
-                              (route) => false,
-                            );
-                          },
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          title: Text(
-                            "Logout",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                          ),
-                          trailing: Icon(
-                            MdiIcons.logout,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                        title: Text(
+                          "Logout",
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                        ),
+                        trailing: Icon(
+                          MdiIcons.logout,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
-                    ],
-                  )
-                ],
-              ),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
         ),
