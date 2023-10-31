@@ -369,7 +369,7 @@ class AddTransactionScreen extends HookConsumerWidget {
           height: 10,
         ),
         TextFormField(
-          initialValue: amount.value.toString(),
+          initialValue: amount.value > 0 ? amount.value.toString() : null,
           maxLength: 10,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
