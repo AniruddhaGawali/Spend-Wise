@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/add_account_screen.dart';
+import 'package:spendwise/screens/add_update_account_screen.dart';
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/widgits/auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,8 +14,8 @@ import 'package:http/http.dart' as http;
 class RegisterScreeen extends StatelessWidget {
   const RegisterScreeen({super.key});
 
-  Future<bool> _register(String username, String password, bool rememberMe,
-      WidgetRef ref, BuildContext context) async {
+  Future<bool> _register(String email, String username, String password,
+      bool rememberMe, WidgetRef ref, BuildContext context) async {
     final url = "${dotenv.env['API_URL']}/user/register";
 
     final response = await http.post(
@@ -23,7 +23,11 @@ class RegisterScreeen extends StatelessWidget {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({"username": username, "password": password}),
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+        "email": email,
+      }),
     );
 
     Map<String, dynamic> body = jsonDecode(response.body);

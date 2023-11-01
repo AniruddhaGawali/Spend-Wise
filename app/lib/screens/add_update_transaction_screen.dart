@@ -190,6 +190,11 @@ class AddTransactionScreen extends HookConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(editTransaction?.title ?? "Add Transaction"),
+          actions: [
+            editTransaction != null
+                ? IconButton(onPressed: () {}, icon: Icon(MdiIcons.delete))
+                : const SizedBox.shrink(),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),

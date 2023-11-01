@@ -28,7 +28,7 @@ class AddAccountScreen extends HookConsumerWidget {
   ) async {
     isLoading.value = true;
     final account = Account(id: '1', name: name, balance: balance, type: type);
-    final url = "${dotenv.env['API_URL']}/user/add-account";
+    final url = "${dotenv.env['API_URL']}/account/add-account";
 
     final response = await http.put(
       Uri.parse(url),
@@ -152,7 +152,8 @@ class AddAccountScreen extends HookConsumerWidget {
                     height: 10,
                   ),
                   TextFormField(
-                    initialValue: balance.value.toString(),
+                    initialValue:
+                        account == null ? null : balance.value.toString(),
                     maxLength: 10,
                     decoration: InputDecoration(
                       labelText: 'Balance',
@@ -292,18 +293,49 @@ class AddAccountScreen extends HookConsumerWidget {
                         vertical: 8,
                       ),
                       child: Text(
-                          account == null ? 'Add Account' : "Update Account",
-                          softWrap: false,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge!
-                              .copyWith(
-                                  fontSize: 20,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold)),
+                        account == null ? 'Add Account' : "Update Account",
+                        softWrap: false,
+                        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                            fontSize: 20,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  account != null
+                      ? OutlinedButton.icon(
+                          onPressed: () {},
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100.0),
+                            )),
+                            iconColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).colorScheme.error),
+                          ),
+                          icon: Icon(
+                            MdiIcons.delete,
+                          ),
+                          label: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              "Delete",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge!
+                                  .copyWith(
+                                      fontSize: 20,
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                      fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink()
                 ],
               ),
             ),
