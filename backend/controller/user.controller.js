@@ -8,7 +8,10 @@ const auth = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-// POST /api/register
+  /*
+    * POST /api/user/register
+  */
+
 router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -38,7 +41,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/login
+  /*
+    * POST /api/user/login
+  */
+
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -65,7 +71,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// PUT /api/user/add-account
+  /*
+    * PUT /api/user/add-account
+  */
+   
 router.put('/add-account', auth, async (req, res) => {
   try {
     const { name, balance, type } = req.body;
