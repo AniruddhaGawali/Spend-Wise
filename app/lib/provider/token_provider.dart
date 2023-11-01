@@ -62,6 +62,7 @@ class TokenNotfier extends Notifier<String> {
 
   Future deleteToken() async {
     final db = await _getDatabase();
+    clear();
     await db.delete('user');
   }
 }

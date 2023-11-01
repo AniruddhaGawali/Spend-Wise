@@ -12,11 +12,28 @@ class UserNotifier extends Notifier<User> {
     state = user;
   }
 
+  User get() => state;
+
   void addAccount(Account account) {
     state = User(
         id: state.id,
         username: state.username,
         accounts: [...state.accounts, account]);
+  }
+
+  void updateAccount(Account account) {
+    state = User(
+        id: state.id,
+        username: state.username,
+        accounts: state.accounts
+            .map((e) => e.id == account.id
+                ? Account(
+                    id: e.id,
+                    name: account.name,
+                    type: account.type,
+                    balance: account.balance)
+                : e)
+            .toList());
   }
 
   void removeAccount(Account account) {
@@ -76,6 +93,10 @@ class UserNotifier extends Notifier<User> {
       total += account.balance;
     }
     return total;
+  }
+
+  void logout() {
+    state = User(id: "", username: "", accounts: []);
   }
 }
 
