@@ -7,6 +7,9 @@ const Transaction = require('../model/transaction.model');
 
 // GET all user data, including accounts and transactions
 
+  /*
+    * GET: api/all-data
+  */
 router.get('/', auth, async (req, res) => {
   try {
     // Get user data
@@ -30,6 +33,10 @@ router.get('/', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+  /* 
+    * GET: api/all-data/accounts
+  */
 
 router.get('/transactions', auth, async (req, res) => {
   try {

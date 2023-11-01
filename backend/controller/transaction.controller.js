@@ -1,22 +1,62 @@
-const express = require('express');
+const express = require("express");
 
-const Transaction = require('../model/transaction.model');
-const Account = require('../model/account.model');
-const auth = require('../middleware/auth.middleware');
+const Transaction = require("../model/transaction.model");
+const Account = require("../model/account.model");
+const auth = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
-router.get('/', auth, async (req, res) => {
+/*
+ * GET: api/transaction
+ */
+router.get("/", auth, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ user: req.userId });
+    const transactions = await Transaction.find({ userId: req.userId });
     res.status(200).json(transactions);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
-router.post('/add', auth, async (req, res) => {
+/*
+ * DELETE: api/transaction/delete/:id
+ */
+
+router.delete("/delete/:id", auth, async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // If confirm is true, update account balance otherwise only delete transaction
+
+    const transaction = await Transaction.findById(id);
+
+    await Account.updateOne(
+      { _id: transaction.accountId },
+      {
+        $inc: {
+          balance:
+            transaction.type === "income"
+              ? -transaction.amount
+              : +transaction.amount,
+        },
+      }
+    );
+
+    await Transaction.deleteOne({ _id: id });
+
+    res.status(200).json({ message: "Transaction deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+/*
+ * POST: api/transaction/add
+ */
+
+router.post("/add", auth, async (req, res) => {
   try {
     const { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
@@ -41,7 +81,7 @@ router.post('/add', auth, async (req, res) => {
       { _id: accountId },
       {
         $inc: {
-          balance: type === 'income' ? +amount : -amount,
+          balance: type === "income" ? +amount : -amount,
         },
       }
     );
@@ -49,11 +89,15 @@ router.post('/add', auth, async (req, res) => {
     res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-router.put('/update/:id', auth, async (req, res) => {
+/*
+ * PUT: api/transaction/update/:id
+ */
+
+router.put("/update/:id", auth, async (req, res) => {
   try {
     const { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
@@ -74,6 +118,28 @@ router.put('/update/:id', auth, async (req, res) => {
       date: tDate,
     });
 
+    if (accountId !== oldTransaction.accountId) {
+      await Account.updateOne(
+        { _id: oldTransaction.accountId },
+        {
+          $inc: {
+            balance:
+              oldTransaction.type === "income"
+                ? -oldTransaction.amount
+                : +oldTransaction.amount,
+          },
+        }
+      );
+      await Account.updateOne(
+        { _id: accountId },
+        {
+          $inc: {
+            balance: type === "income" ? +amount : -amount,
+          },
+        }
+      );
+    }
+
     // Save account to database
     await Transaction.updateOne({ _id: id }, newTransaction);
 
@@ -83,7 +149,7 @@ router.put('/update/:id', auth, async (req, res) => {
         {
           $inc: {
             balance:
-              type === 'income'
+              type === "income"
                 ? -(oldTransaction.amount - amount)
                 : +(oldTransaction.amount - amount),
           },
@@ -95,7 +161,7 @@ router.put('/update/:id', auth, async (req, res) => {
         {
           $inc: {
             balance:
-              type === 'income'
+              type === "income"
                 ? +(amount - oldTransaction.amount)
                 : -(amount - oldTransaction.amount),
           },
@@ -106,7 +172,7 @@ router.put('/update/:id', auth, async (req, res) => {
     res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
 

@@ -4,11 +4,15 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../model/user.model');
 const Account = require('../model/account.model');
+const Transaction = require('../model/transaction.model');
 const auth = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-// POST /api/register
+  /*
+    * POST /api/user/register
+  */
+
 router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -38,7 +42,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/login
+  /*
+    * POST /api/user/login
+  */
+
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -65,33 +72,60 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// PUT /api/user/add-account
-router.put('/add-account', auth, async (req, res) => {
-  try {
-    const { name, balance, type } = req.body;
+  /*
+  ! Divered to account.controller.js
+    * PUT /api/user/add-account
+  */
+   
+// router.put('/add-account', auth, async (req, res) => {
+//   try {
+//     const { name, balance, type } = req.body;
 
-    // Create new account
-    const newAccount = new Account({
-      name,
-      balance,
-      type,
+//     // Create new account
+//     const newAccount = new Account({
+//       name,
+//       balance,
+//       type,
+//     });
+
+//     // Save account to database
+//     await newAccount.save();
+
+//     // Add account ID to user's account array
+//     const user = await User.findById(req.userId);
+//     user.set({ accounts: [...user.accounts, newAccount._id] });
+//     await user.save();
+
+//     res
+//       .status(201)
+//       .json({ message: 'Account created and added to user successfully' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
+/*
+  * DELETE /api/user/delete
+  ! check before run 
+*/
+
+router.delete('/delete', auth, async (req, res) => {
+  try {
+    // Delete user
+    const user = await User.findById({userId : req.userId});
+    user?.accounts.forEach(async (acc) => {
+      await Account.findByIdAndDelete(acc);
     });
 
-    // Save account to database
-    await newAccount.save();
+    await Transaction.deleteMany({ userId: req.userId });
+    await User.findByIdAndDelete(req.userId);
 
-    // Add account ID to user's account array
-    const user = await User.findById(req.userId);
-    user.set({ accounts: [...user.accounts, newAccount._id] });
-    await user.save();
-
-    res
-      .status(201)
-      .json({ message: 'Account created and added to user successfully' });
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
-});
+} );
 
 module.exports = router;
