@@ -64,7 +64,7 @@ class HomeScreen extends HookConsumerWidget {
               icon: Icon(
                 MdiIcons.accountCircleOutline,
                 color: Theme.of(context).colorScheme.onBackground,
-                size: 30,
+                size: 25,
               ),
             ),
             IconButton(
@@ -73,7 +73,10 @@ class HomeScreen extends HookConsumerWidget {
                     return const SettingScreen();
                   }));
                 },
-                icon: Icon(MdiIcons.cog))
+                icon: Icon(
+                  MdiIcons.cog,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ))
           ]),
       body: RefreshIndicator(
         onRefresh: () async {

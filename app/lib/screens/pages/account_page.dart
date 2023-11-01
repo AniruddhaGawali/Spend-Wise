@@ -27,7 +27,10 @@ class AllAccountsScreen extends ConsumerWidget {
                   return const EditAccounts();
                 }));
               },
-              icon: Icon(MdiIcons.squareEditOutline),
+              icon: Icon(
+                MdiIcons.squareEditOutline,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             )
           ],
         ),

@@ -99,6 +99,45 @@ class SettingScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .errorContainer
+                            .withOpacity(.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        onTap: () {
+                          ref.read(tokenProvider.notifier).deleteToken();
+                          ref.read(userProvider.notifier).logout();
+
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        title: Text(
+                          "Delete Account",
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                        ),
+                        trailing: Icon(
+                          MdiIcons.delete,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
                   ],
                 )
               ],
