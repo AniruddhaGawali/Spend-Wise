@@ -28,7 +28,7 @@ class AddAccountScreen extends HookConsumerWidget {
   ) async {
     isLoading.value = true;
     final account = Account(id: '1', name: name, balance: balance, type: type);
-    final url = "${dotenv.env['API_URL']}/user/add-account";
+    final url = "${dotenv.env['API_URL']}/account/add-account";
 
     final response = await http.put(
       Uri.parse(url),

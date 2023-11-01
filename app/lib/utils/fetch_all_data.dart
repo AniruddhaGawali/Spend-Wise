@@ -26,9 +26,8 @@ Future<bool> fetchData(WidgetRef ref) async {
   if (response.statusCode == 200) {
     try {
       final body = jsonDecode(response.body);
-      // print(body);
 
-      final user = body["user"] as Map<String, dynamic>;
+      final user = body["user"];
       final accounts = body["accounts"];
       final transaction = body["transactions"];
 

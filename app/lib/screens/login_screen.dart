@@ -16,8 +16,8 @@ import 'package:http/http.dart' as http;
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Future<bool> _login(String username, String password, bool rememberMe,
-      WidgetRef ref, BuildContext context) async {
+  Future<bool> _login(String email, String username, String password,
+      bool rememberMe, WidgetRef ref, BuildContext context) async {
     final url = "${dotenv.env['API_URL']}/user/login";
 
     final response = await http.post(

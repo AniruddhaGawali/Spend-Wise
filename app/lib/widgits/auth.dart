@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:spendwise/data/constant_values.dart';
-import 'package:spendwise/utils/about_device.dart';
 import 'package:spendwise/widgits/loading.dart';
 
 class AuthWidget extends HookConsumerWidget {
@@ -17,8 +15,8 @@ class AuthWidget extends HookConsumerWidget {
   final String? bottomButtonText;
   final Widget? bottomWidget;
   final Widget? nextScreen;
-  final Future<bool> Function(String username, String password, bool rememberMe,
-      WidgetRef ref, BuildContext context)? onSubmit;
+  final Future<bool> Function(String email, String username, String password,
+      bool rememberMe, WidgetRef ref, BuildContext context)? onSubmit;
 
   const AuthWidget({
     super.key,
@@ -37,114 +35,103 @@ class AuthWidget extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final statusBarHeight = getTopPadding(context);
-
-    final widgetHeight = isLandscape(context)
-        ? screenHeight
-        : screenHeight - statusBarHeight - 40;
-
     final formKey = useMemoized(() => GlobalKey<FormState>());
-    final usernameController = useTextEditingController();
-    final passwordController = useTextEditingController();
+    final email = useState('');
+    final username = useState('');
+    final password = useState('');
     final rememberMe = useState(false);
-    final isPasswordVisible = useState(false);
     final isLoading = useState(false);
 
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(padding),
-          child: SizedBox(
-            height: widgetHeight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: getTopPadding(context) + padding * 2,
-                ),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                ),
-                const SizedBox(
-                  height: spacerHeight,
-                ),
-                Text(
-                  subTitle,
-                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                ),
-                const Spacer(),
-                Form(
+        child: SizedBox(
+            child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(height: 50),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                subTitle,
+                style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+              const SizedBox(
+                height: 80,
+              ),
+              Form(
                   key: formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                      ),
+                      !isLogin
+                          ? TextFormField(
+                              decoration: InputDecoration(
+                                  icon: Icon(MdiIcons.emailOutline),
+                                  labelText: 'Email',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  )),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter an user email';
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) => email.value = newValue!,
+                            )
+                          : const SizedBox.shrink(),
                       const SizedBox(
-                        height: spacerHeight,
+                        height: 10,
                       ),
                       TextFormField(
-                        controller: usernameController,
                         decoration: InputDecoration(
-                          labelText: "Username",
-                          hintText: "Enter your username",
-                          icon: Icon(MdiIcons.accountCircleOutline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                            icon: Icon(MdiIcons.accountCircleOutline),
+                            labelText: 'Username',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            )),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Please enter a username";
+                            return 'Please enter an username';
                           }
                           return null;
                         },
+                        onSaved: (newValue) => username.value = newValue!,
                       ),
                       const SizedBox(
-                        height: spacerHeight,
+                        height: 10,
                       ),
                       TextFormField(
-                        controller: passwordController,
-                        obscureText: isPasswordVisible.value,
+                        obscureText: true,
                         decoration: InputDecoration(
-                          labelText: "Password",
-                          hintText: "Enter your password",
-                          icon: Icon(MdiIcons.lockOutline),
-                          suffixIcon: IconButton(
-                            icon: Icon(isPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                            onPressed: () {
-                              isPasswordVisible.value =
-                                  !isPasswordVisible.value;
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                            icon: Icon(MdiIcons.lockOutline),
+                            labelText: 'Password',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            )),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Please enter a password";
+                            return 'Please enter a password';
                           }
                           return null;
                         },
+                        onSaved: (newValue) => password.value = newValue!,
                       ),
                       const SizedBox(
-                        height: spacerHeight,
+                        height: 10,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -152,45 +139,88 @@ class AuthWidget extends HookConsumerWidget {
                           Checkbox(
                             value: rememberMe.value,
                             onChanged: (value) {
-                              rememberMe.value = value ?? false;
+                              rememberMe.value = value!;
                             },
                           ),
                           Text(
-                            "Remember Me",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
+                            'Remember me',
+                            style: Theme.of(context).textTheme.titleMedium!,
                           ),
                         ],
                       ),
                       const SizedBox(
-                        height: spacerHeight,
+                        height: 10,
                       ),
                       SizedBox(
                         width: double.infinity,
-                        child: FilledButton.tonalIcon(
+                        child: FilledButton.icon(
                           onPressed: () async {
                             isLoading.value = true;
-                            if (formKey.currentState!.validate()) {
-                              formKey.currentState!.save();
-                              if (onSubmit != null) {
-                                bool isSuccess = await onSubmit!(
-                                  usernameController.text,
-                                  passwordController.text,
+                            if (onSubmit != null) {
+                              if (formKey.currentState!.validate()) {
+                                formKey.currentState!.save();
+
+                                bool isSuccessFull = await onSubmit!(
+                                  email.value,
+                                  username.value,
+                                  password.value,
                                   rememberMe.value,
                                   ref,
                                   context,
                                 );
 
-                                if (isSuccess) {
+                                if (isSuccessFull) {
+                                  if (nextScreen != null) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              "Account created successfully!",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium!
+                                                  .copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onTertiaryContainer,
+                                                  )),
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .tertiaryContainer,
+                                        ),
+                                      );
+
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => nextScreen!,
+                                        ),
+                                        (route) => false,
+                                      );
+                                    }
+                                  }
+                                } else {
                                   if (context.mounted) {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) => nextScreen!,
+                                    ScaffoldMessenger.of(context)
+                                        .hideCurrentSnackBar();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            "Account creation failed!",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onTertiaryContainer,
+                                                )),
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .tertiaryContainer,
                                       ),
                                     );
                                   }
@@ -205,82 +235,82 @@ class AuthWidget extends HookConsumerWidget {
                                   width: 20,
                                   child: Loading(
                                     color:
-                                        Theme.of(context).colorScheme.onSurface,
+                                        Theme.of(context).colorScheme.onPrimary,
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : Icon(buttonIcon),
+                              : Icon(
+                                  buttonIcon,
+                                ),
                           label: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
                             child: Text(
                               buttonText,
                               style: Theme.of(context)
                                   .textTheme
                                   .labelLarge!
                                   .copyWith(
+                                      fontSize: 20,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onSurface,
-                                      fontSize: 20,
+                                          .onPrimary,
                                       fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(
-                        height: spacerHeight,
+                        height: 10,
                       ),
-                      bottomButtonText != null &&
-                              bottomButtonText!.isNotEmpty &&
-                              bottomText != null &&
-                              bottomText!.isNotEmpty &&
-                              bottomWidget != null
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  bottomText!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(
-                                        fontWeight: FontWeight.w600,
+                      if (bottomText != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              bottomText!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      fontWeight: FontWeight.bold),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                if (bottomWidget != null) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => bottomWidget!,
+                                    ),
+                                    (route) => false,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                bottomButtonText!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .onSurface,
-                                      ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) => bottomWidget!,
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    bottomButtonText!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
-                                        ),
-                                  ),
-                                )
-                              ],
-                            )
-                          : const SizedBox()
+                                            .primary,
+                                        fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
-                  ),
-                )
-              ],
-            ),
+                  )),
+            ],
           ),
-        ),
+        )),
       ),
     );
   }
