@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/screens/add_account_screen.dart';
+import 'package:spendwise/screens/add_update_account_screen.dart';
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/widgits/auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
