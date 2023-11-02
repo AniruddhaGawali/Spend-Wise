@@ -8,13 +8,13 @@ import 'package:spendwise/provider/monetary_units.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
-import 'package:spendwise/screens/add_update_transaction_screen.dart';
-import 'package:spendwise/screens/setting_screen.dart';
-import 'package:spendwise/screens/user_detail_screen.dart';
+import 'package:spendwise/widgits/add_update_transaction_screen.dart';
+import 'package:spendwise/screens/statics_data_screens/setting_screen.dart';
+import 'package:spendwise/screens/statics_data_screens/user_detail_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 
-import 'package:spendwise/widgits/transaction_card.dart';
+import 'package:spendwise/widgits/cards/transaction_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

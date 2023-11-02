@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/monetary_units.dart';
 import 'package:spendwise/utils/get_date.dart';
-import 'package:spendwise/widgits/transaction_card.dart';
+import 'package:spendwise/widgits/cards/transaction_card.dart';
 
 // ignore: must_be_immutable
 class ViewAllTransactionScreen extends HookConsumerWidget {

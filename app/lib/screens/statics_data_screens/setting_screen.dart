@@ -6,9 +6,9 @@ import 'package:spendwise/provider/monetary_units.dart';
 import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/login_screen.dart';
-import 'package:spendwise/screens/select_%20monetary_unit.dart';
+import 'package:spendwise/screens/edit_data_screens/select_%20monetary_unit.dart';
 
-import 'package:spendwise/widgits/update_card.dart';
+import 'package:spendwise/widgits/cards/update_card.dart';
 
 class SettingScreen extends ConsumerWidget {
   const SettingScreen({super.key});
@@ -100,7 +100,7 @@ class SettingScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 10,
                     ),
                     Container(
                       decoration: BoxDecoration(
