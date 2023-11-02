@@ -70,7 +70,7 @@ class HomeScreen extends HookConsumerWidget {
             IconButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const SettingScreen();
+                    return SettingScreen();
                   }));
                 },
                 icon: Icon(
