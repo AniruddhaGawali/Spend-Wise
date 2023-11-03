@@ -15,8 +15,6 @@ const transporter = nodeMailer.createTransport({
 router.post("/forgetPassword/:id", async (req, res) => {
   try {
     const email = req.params.id;
-    console.log(email);
-
     const isUser = await User.findOne({ email }).exec();
     const otp = Math.floor(Math.random() * 1000000);
 
