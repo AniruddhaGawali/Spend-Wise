@@ -3,6 +3,8 @@ const express = require("express");
 const Transaction = require("../model/transaction.model");
 const Account = require("../model/account.model");
 const auth = require("../middleware/auth.middleware");
+const Encrypt = require("../Encryption").encrypt;
+const Decrypt = require("../Encryption").decrypt;
 
 const router = express.Router();
 
@@ -12,6 +14,14 @@ const router = express.Router();
 router.get("/", auth, async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.userId });
+
+    transactions.forEach((transaction) => {
+      transaction.title =
+        Decrypt(transaction.title) === ""
+          ? transaction.title
+          : Decrypt(transaction.title);
+    });
+
     res.status(200).json(transactions);
   } catch (error) {
     console.error(error);
@@ -58,10 +68,11 @@ router.delete("/delete/:id", auth, async (req, res) => {
 
 router.post("/add", auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, category, date } = req.body;
+    let { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
 
     let tDate = new Date(date);
+    title = Encrypt(title);
 
     // Create new account
     const newTransaction = new Transaction({
@@ -99,9 +110,10 @@ router.post("/add", auth, async (req, res) => {
 
 router.put("/update/:id", auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, category, date } = req.body;
+    let { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
     const id = req.params.id;
+    title = Encrypt(title);
     let tDate = new Date(date);
 
     const oldTransaction = await Transaction.findById(id);
@@ -183,9 +195,10 @@ router.put("/update/:id", auth, async (req, res) => {
   router.post('/transfer',auth , async (req,res) => {
     try{
       // console.time('transferTime: ');
-      const {fromAccount,toAccount,title, amount, date } = req.body;
+      let {fromAccount,toAccount,title, amount, date } = req.body;
       const userId = req.userId;
-      let tDate = new Date(date); 
+      let tDate = new Date(date);
+      title = Encrypt(title); 
 
       const from = await Account.findById(fromAccount);
 

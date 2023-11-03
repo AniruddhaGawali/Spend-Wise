@@ -4,6 +4,7 @@ const auth = require("../middleware/auth.middleware");
 const Account = require("../model/account.model");
 const Transaction = require("../model/transaction.model");
 const User = require("../model/user.model");
+const Encrypt = require("../Encryption").encrypt;
 
 /*
  * PUT /api/account/add-account
@@ -11,7 +12,10 @@ const User = require("../model/user.model");
 
 router.put("/add-account", auth, async (req, res) => {
   try {
-    const { name, balance, type } = req.body;
+    let { name, balance, type } = req.body;
+
+    // Encrypt title
+    name = Encrypt(name);
 
     // Create new account
     const newAccount = new Account({
@@ -46,13 +50,15 @@ router.put("/add-account", auth, async (req, res) => {
 router.put("/update/:id", auth, async (req, res) => {
   try {
     // get the balance and name from the request body
-    const { balance, name, type } = req.body;
+    let { balance, name, type } = req.body;
     const id = req.params.id;
 
     // find the account by id
     const accounts = await Account.findById(id);
 
     let flag = false;
+
+    name = Encrypt(name);
 
     // if account exists, update the balance and name
     if (accounts) {
