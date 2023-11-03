@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const client = require('../config/connect');
+const Schema = mongoose.Schema;
 
-const otpSchema =  new mongoose.Schema({
+const otpSchema = new Schema({
     userId : {
         type: String,
         required: true,
@@ -15,5 +16,4 @@ const otpSchema =  new mongoose.Schema({
 });
 
 const Otp = client.model('Otp', otpSchema);
-
-module.exports = Otp;
+model.exports = Otp;
