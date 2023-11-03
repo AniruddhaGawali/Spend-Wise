@@ -12,12 +12,12 @@ const transporter = nodeMailer.createTransport({
   },
 });
 
-router.post("/forgetPassword", async (req, res) => {
+router.post("/forgetPassword/:id", async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.params.id;
+    console.log(email);
 
     const isUser = await User.findOne({ email }).exec();
-    console.log(isUser);
     const otp = Math.floor(Math.random() * 1000000);
 
     if (isUser) {
@@ -50,9 +50,11 @@ router.post("/forgetPassword", async (req, res) => {
         }
       });
 
-      setTimeout(async() => {
-        const otpTimeout = await Otp.findOneAndDelete({ userId: isUser._id }).exec();
-        console.log(otpTimeout); 
+      setTimeout(async () => {
+        const otpTimeout = await Otp.findOneAndDelete({
+          userId: isUser._id,
+        }).exec();
+        console.log(otpTimeout);
       }, 1000 * 60 * 5);
 
       res.status(200).json({ message: "OTP sent successfully" });
