@@ -176,4 +176,53 @@ router.put("/update/:id", auth, async (req, res) => {
   }
 });
 
+  /*
+  * POST : api/transaction/transfer
+  */
+
+  router.post('/transfer',auth , async (req,res) => {
+    try{
+      // console.time('transferTime: ');
+      const {fromAccount,toAccount,title, amount, date } = req.body;
+      const userId = req.userId;
+      let tDate = new Date(date); 
+
+      const from = await Account.findById(fromAccount);
+
+      if(from.balance < amount){
+        res.status(400).json({message: "Insufficient balance"});
+      }
+      
+      await Account.updateOne({_id: fromAccount},{
+        $inc: {
+          balance: -amount
+        }
+      });
+
+      await Account.updateOne({_id: toAccount},{
+        $inc: {
+          balance: amount
+        }
+      });
+
+      const newTransaction = new Transaction({
+        title: title,
+        accountId: fromAccount,
+        type: 'transfer',
+        amount: amount,
+        category: 'account',
+        userId: userId,
+        date: tDate
+      });
+
+      await newTransaction.save();
+      // console.timeEnd('transferTime: '); 
+      res.status(201).json({message: "Transfer successful"});
+    }catch(error){
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+
 module.exports = router;
