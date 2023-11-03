@@ -4,7 +4,6 @@ const auth = require('../middleware/auth.middleware');
 const User = require('../model/user.model');
 const Account = require('../model/account.model');
 const Transaction = require('../model/transaction.model');
-const decrypt = require('../Encryption').decrypt;
 
 // GET all user data, including accounts and transactions
 
@@ -24,16 +23,8 @@ router.get('/', auth, async (req, res) => {
 
     const accounts = await Promise.all(accountPromises);
 
-    accounts.forEach((account) => {
-      account.name = decrypt(account.name) === "" ? account.name : decrypt(account.name);
-    });
-
     // Get user's transactions
     const transactions = await Transaction.find({ userId: user.id });
-
-    transactions.forEach((transaction) => {
-     transaction.title = decrypt(transaction.title) === "" ? transaction.title : decrypt(transaction.title);
-    });
 
     // Return all data
     res.status(200).json({ user, accounts, transactions });
@@ -43,9 +34,18 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-
-  /*
-    * GET: api/month-transactions/
+  /* 
+    * GET: api/all-data/accounts
   */
+
+router.get('/transactions', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.userId });
+    res.status(200).json(transactions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 module.exports = router;
