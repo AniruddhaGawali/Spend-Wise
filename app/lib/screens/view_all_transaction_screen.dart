@@ -32,7 +32,15 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
             getMonthTotal(transaction.date.month, transaction.date.year);
         // Add a title with the new month and year
         transactionListWithTitles.add(Container(
-          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          margin: EdgeInsets.only(
+            bottom: 15,
+            top: transactions.indexOf(transaction) == 0 ? 0 : 40,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -54,27 +62,7 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
               )
             ],
           ),
-        )
-
-            // ListTile(
-            //     title: Text(
-            //       '${getFullMonth(transaction.date.month)} ${transaction.date.year}',
-            //       style: Theme.of(context)
-            //           .textTheme
-            //           .titleMedium!
-            //           .copyWith(fontWeight: FontWeight.bold),
-            //     ),
-            //     trailing: Text(
-            //       '\$${monthExpence.abs().toStringAsFixed(2)}',
-            //       style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            //             fontWeight: FontWeight.bold,
-            //             color: monthExpence >= 0
-            //                 ? Colors.green
-            //                 : Theme.of(context).colorScheme.error,
-            //           ),
-            //     )
-            //     ),
-            );
+        ));
       }
 
       // Add the transaction card
