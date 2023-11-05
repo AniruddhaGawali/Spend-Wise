@@ -269,7 +269,13 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedTransactionType = useState<TransactionType>(
         editTransaction?.type ?? TransactionType.expense);
 
-    final selectedAccount = useState<Account>(editTransaction != null
+    final selectedFromAccount = useState<Account>(editTransaction != null
+        ? ref
+            .read(userProvider.notifier)
+            .getAccountById(editTransaction!.account.id)
+        : ref.read(userProvider).accounts.first);
+
+    final selectedToAccount = useState<Account>(editTransaction != null
         ? ref
             .read(userProvider.notifier)
             .getAccountById(editTransaction!.account.id)
@@ -360,6 +366,11 @@ class AddTransactionScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 20,
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Text("From Account",
+                          style: Theme.of(context).textTheme.bodyMedium!),
+                    ),
                     SizedBox(
                       height: 50,
                       width: double.infinity,
@@ -379,9 +390,9 @@ class AddTransactionScreen extends HookConsumerWidget {
                                     icon: e.type == AccountType.cash
                                         ? MdiIcons.cashMultiple
                                         : MdiIcons.bank,
-                                    selected: selectedAccount.value == e,
+                                    selected: selectedFromAccount.value == e,
                                     onPressed: () {
-                                      selectedAccount.value = e;
+                                      selectedFromAccount.value = e;
                                     },
                                   ),
                                 ),
@@ -390,6 +401,52 @@ class AddTransactionScreen extends HookConsumerWidget {
                         ],
                       ),
                     ),
+                    SizedBox(
+                      height: selectedTransactionType.value ==
+                              TransactionType.transfer
+                          ? 20
+                          : 0,
+                    ),
+                    selectedTransactionType.value == TransactionType.transfer
+                        ? Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Text("To Account",
+                                style: Theme.of(context).textTheme.bodyMedium!),
+                          )
+                        : const SizedBox.shrink(),
+                    selectedTransactionType.value == TransactionType.transfer
+                        ? SizedBox(
+                            height: 50,
+                            width: double.infinity,
+                            child: ListView(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                ...ref
+                                    .watch(userProvider)
+                                    .accounts
+                                    .map(
+                                      (e) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: CustomActionChip(
+                                          label: e.name,
+                                          icon: e.type == AccountType.cash
+                                              ? MdiIcons.cashMultiple
+                                              : MdiIcons.bank,
+                                          selected:
+                                              selectedToAccount.value == e,
+                                          onPressed: () {
+                                            selectedToAccount.value = e;
+                                          },
+                                        ),
+                                      ),
+                                    )
+                                    .toList()
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                     const SizedBox(
                       height: 20,
                     ),
@@ -425,7 +482,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                               selectedDate,
                               selectedTime,
                               selectedCategory,
-                              selectedAccount,
+                              selectedFromAccount,
                               selectedTransactionType,
                               isLoading);
                         },
@@ -673,5 +730,61 @@ class AddTransactionScreen extends HookConsumerWidget {
                     .toList()
           ],
         ));
+  }
+
+  Widget transferWidgit(
+      BuildContext context, WidgetRef ref, Transaction? editTransaction) {
+    final selectedAccount = useState<Account>(ref
+        .read(userProvider)
+        .accounts
+        .firstWhere((element) => element.id != editTransaction!.account.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        Text(
+          "Transfer to",
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          height: 50,
+          width: double.infinity,
+          child: ListView(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            children: [
+              ...ref
+                  .watch(userProvider)
+                  .accounts
+                  .where((element) => element.id != editTransaction!.account.id)
+                  .map(
+                    (e) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: CustomActionChip(
+                        label: e.name,
+                        icon: e.type == AccountType.cash
+                            ? MdiIcons.cashMultiple
+                            : MdiIcons.bank,
+                        selected: selectedAccount.value == e,
+                        onPressed: () {
+                          selectedAccount.value = e;
+                        },
+                      ),
+                    ),
+                  )
+                  .toList()
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

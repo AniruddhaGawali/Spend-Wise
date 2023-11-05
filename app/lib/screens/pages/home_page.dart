@@ -211,7 +211,7 @@ class HomeScreen extends HookConsumerWidget {
                       height: 10,
                     ),
                     Text(
-                      "Total Expenses",
+                      "Total Expenses of Month",
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                             color: Theme.of(context).colorScheme.onBackground,
                             fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "${ref.watch(monetaryUnitProvider.notifier).get()}${ref.watch(transactionProvider.notifier).totalExpenses().toStringAsFixed(2)}",
+                        "${ref.watch(monetaryUnitProvider.notifier).get()}${ref.watch(transactionProvider.notifier).totalExpensesByMonth(DateTime.now().month, DateTime.now().year).abs().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium!

@@ -48,7 +48,7 @@ IconData getTransactionCatergoryIcon(TransactionCatergory catergory) {
   }
 }
 
-enum TransactionType { income, expense }
+enum TransactionType { transfer, income, expense }
 
 class Transaction {
   final String id;
