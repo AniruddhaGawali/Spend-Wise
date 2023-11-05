@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:spendwise/model/account.dart';
 import 'package:spendwise/model/transaction.dart';
 
 class TransactionNotifier extends StateNotifier<List<Transaction>> {
@@ -17,6 +18,10 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
 
   void removeTransaction(Transaction transaction) {
     state = state.where((element) => element.id != transaction.id).toList();
+  }
+
+  void removeTransactionOfAccount(Account account) {
+    state = state.where((element) => element.account.id != account.id).toList();
   }
 
   double totalExpenses() {

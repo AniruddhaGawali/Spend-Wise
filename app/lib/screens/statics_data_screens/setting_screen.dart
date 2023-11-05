@@ -12,6 +12,7 @@ import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/screens/edit_data_screens/select_%20monetary_unit.dart';
 
 import 'package:spendwise/widgits/cards/update_card.dart';
+import 'package:http/http.dart' as http;
 
 class SettingScreen extends HookConsumerWidget {
   late final LocalAuthentication auth;
@@ -160,16 +161,49 @@ class SettingScreen extends HookConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        onTap: () {
-                          ref.read(tokenProvider.notifier).deleteToken();
-                          ref.read(userProvider.notifier).logout();
-
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                            (route) => false,
+                        onTap: () async {
+                          final response = await http.delete(
+                            Uri.parse(
+                                "https://spendwise-api.herokuapp.com/api/user/delete"),
+                            headers: {
+                              "Authorization":
+                                  "Bearer ${ref.read(tokenProvider.notifier).get()}"
+                            },
                           );
+
+                          if (response.statusCode == 200) {
+                            ref.read(tokenProvider.notifier).deleteToken();
+                            ref.read(userProvider.notifier).logout();
+                            if (context.mounted) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Something went wrong",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        ),
+                                  ),
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .errorContainer,
+                                ),
+                              );
+                            }
+                          }
                         },
                         shape: BeveledRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/provider/token_provider.dart';
+import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
@@ -81,6 +82,66 @@ class AddAccountScreen extends HookConsumerWidget {
     } else {
       return false;
     }
+  }
+
+  Future<bool> _deleteAccount(WidgetRef ref) async {
+    final url = "${dotenv.env['API_URL']}/account/delete/${account!.id}";
+
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}",
+      },
+    );
+
+    if (response.statusCode == 201) {
+      ref
+          .read(transactionProvider.notifier)
+          .removeTransactionOfAccount(account!);
+      ref.read(userProvider.notifier).removeAccount(account!);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> _showConfirmDialog(BuildContext context) async {
+    // set up the button
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Confirm Delete Account"),
+      content: const Text(
+          "Are you sure you want to delete this account?\nThis will delete all the transactions associated with this account."),
+      actions: [
+        ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text("Cancel")),
+        ElevatedButton(
+          child: Text(
+            "OK",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+          ),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        )
+      ],
+    );
+    // show the dialog
+    final isConfirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+
+    return isConfirm;
   }
 
   @override
@@ -237,8 +298,6 @@ class AddAccountScreen extends HookConsumerWidget {
                             );
                           }
 
-                          account ?? await fetchData(ref);
-
                           if (context.mounted) {
                             account == null
                                 ? Navigator.pushReplacement(
@@ -305,7 +364,60 @@ class AddAccountScreen extends HookConsumerWidget {
                   const SizedBox(height: 10),
                   account != null
                       ? OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () async {
+                            bool isConfirm = await _showConfirmDialog(context);
+                            if (!isConfirm) {
+                              return;
+                            }
+
+                            bool isDeleted = await _deleteAccount(ref);
+                            if (isDeleted) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        "Account deleted successfully!",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onTertiaryContainer,
+                                            )),
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer,
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              }
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        "Account deleted successfully!",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onTertiaryContainer,
+                                            )),
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer,
+                                  ),
+                                );
+                              }
+                            }
+                          },
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all<
                                 RoundedRectangleBorder>(RoundedRectangleBorder(

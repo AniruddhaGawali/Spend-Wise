@@ -11,9 +11,9 @@ import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
+import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:intl/intl.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:spendwise/widgits/loading.dart';
 
@@ -154,8 +154,118 @@ class AddTransactionScreen extends HookConsumerWidget {
     isLoading.value = false;
   }
 
+  Future<bool> deleteTrasaction(WidgetRef ref, BuildContext context) async {
+    String url =
+        "${dotenv.env['API_URL']}/transaction/delete/${editTransaction!.id}";
+
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+      },
+    );
+
+    if (response.statusCode == 200) {
+      ref
+          .read(transactionProvider.notifier)
+          .removeTransaction(editTransaction!);
+
+      final account = ref
+          .read(userProvider)
+          .accounts
+          .firstWhere((element) => element.id == editTransaction!.account.id);
+
+      if (editTransaction!.type == TransactionType.expense) {
+        ref
+            .read(userProvider.notifier)
+            .addAmount(account, editTransaction!.amount);
+      } else {
+        ref
+            .read(userProvider.notifier)
+            .removeAmount(account, editTransaction!.amount);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Transaction deleted successfully!",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    )),
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+        );
+      }
+      return true;
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Transaction deletion failed!",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    )),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          ),
+        );
+      }
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.read(userProvider).accounts.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(editTransaction?.title ?? "Add Transaction"),
+        ),
+        body: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "No account for transaction\nPlease add account first",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  height: 50,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) {
+                        return const AddAccountScreen();
+                      }));
+                    },
+                    icon: Icon(
+                      MdiIcons.plus,
+                      size: 30,
+                    ),
+                    label: Text(
+                      "Create Account",
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+            )),
+      );
+    }
+
     final selectedTransactionType = useState<TransactionType>(
         editTransaction?.type ?? TransactionType.expense);
 
@@ -192,7 +302,14 @@ class AddTransactionScreen extends HookConsumerWidget {
           title: Text(editTransaction?.title ?? "Add Transaction"),
           actions: [
             editTransaction != null
-                ? IconButton(onPressed: () {}, icon: Icon(MdiIcons.delete))
+                ? IconButton(
+                    onPressed: () async {
+                      bool isdeleted = await deleteTrasaction(ref, context);
+                      if (isdeleted && context.mounted) {
+                        Navigator.pop(context, true);
+                      }
+                    },
+                    icon: Icon(MdiIcons.delete))
                 : const SizedBox.shrink(),
           ],
         ),

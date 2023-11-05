@@ -8,7 +8,7 @@ import 'package:spendwise/provider/monetary_units.dart';
 
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
-import 'package:spendwise/widgits/add_update_transaction_screen.dart';
+import 'package:spendwise/screens/edit_data_screens/add_update_transaction_screen.dart';
 import 'package:spendwise/screens/statics_data_screens/setting_screen.dart';
 import 'package:spendwise/screens/statics_data_screens/user_detail_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';

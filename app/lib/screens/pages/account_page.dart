@@ -4,7 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
-import 'package:spendwise/screens/edit_data_screens/edit_account_screen.dart';
+import 'package:spendwise/screens/edit_data_screens/update_account_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/widgits/cards/account_card.dart';
 
@@ -21,44 +21,54 @@ class AllAccountsScreen extends ConsumerWidget {
             'All Accounts',
           ),
           actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const EditAccounts();
-                }));
-              },
-              icon: Icon(
-                MdiIcons.squareEditOutline,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-            )
+            accounts.isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const EditAccounts();
+                      }));
+                    },
+                    icon: Icon(
+                      MdiIcons.squareEditOutline,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  )
+                : const SizedBox.shrink()
           ],
         ),
-        body: ListView.builder(
-          itemCount: accounts.length,
-          itemBuilder: (BuildContext context, int index) {
-            final account = accounts[index];
-            return Padding(
-                padding: const EdgeInsets.all(8),
-                child: AccountCard(
-                  account: account,
-                  onClick: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return ViewAllTransactionScreen(
-                        transactions: ref
-                            .watch(transactionProvider.notifier)
-                            .getSorted()
-                            .where(
-                                (element) => element.account.id == account.id)
-                            .toList(),
-                        title: account.name,
-                      );
-                    }));
-                  },
-                ));
-          },
-        ),
+        body: accounts.isNotEmpty
+            ? ListView.builder(
+                itemCount: accounts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final account = accounts[index];
+                  return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: AccountCard(
+                        account: account,
+                        onClick: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ViewAllTransactionScreen(
+                              transactions: ref
+                                  .watch(transactionProvider.notifier)
+                                  .getSorted()
+                                  .where((element) =>
+                                      element.account.id == account.id)
+                                  .toList(),
+                              title: account.name,
+                            );
+                          }));
+                        },
+                      ));
+                },
+              )
+            : Center(
+                child: Text(
+                  'No Accounts',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
         floatingActionButton: FloatingActionButton.large(
           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           onPressed: () {

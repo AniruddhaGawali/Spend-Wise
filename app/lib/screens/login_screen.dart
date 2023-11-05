@@ -31,6 +31,7 @@ class LoginScreen extends StatelessWidget {
     Map<String, dynamic> body = jsonDecode(response.body);
 
     if (context.mounted) {
+      print(body);
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       if (response.statusCode == 200) {
