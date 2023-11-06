@@ -100,7 +100,7 @@ router.delete("/delete", auth, async (req, res) => {
 });
 
 /*
- * GET /api/user/image
+ * GET /api/user/image (get user image bits)
  */
 router.post("/image/:id", auth, async (req, res) => {
   try {
