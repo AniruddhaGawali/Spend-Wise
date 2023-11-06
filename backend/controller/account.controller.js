@@ -6,10 +6,10 @@ const Transaction = require("../model/transaction.model");
 const User = require("../model/user.model");
 
 /*
- * PUT /api/account/add-account
+ * POST /api/account/add-account
  */
 
-router.put("/add-account", auth, async (req, res) => {
+router.post("/add-account", auth, async (req, res) => {
   try {
     const { name, balance, type } = req.body;
 
@@ -78,26 +78,25 @@ router.put("/update/:id", auth, async (req, res) => {
 /*
  *DELETE:  api/account/delete/:id
  */
-
-router.delete("/delete/:id", auth, async (req, res) => {
+ router.delete("/delete/:id", auth, async (req, res) => {
   try {
     const id = req.params.id;
-
-    // find the account by id
-    const account = await Account.findByIdAndDelete(id);
-    const transactions = await Transaction.find({ accountId: id });
-    const user = await User.findById(req.userId);
-    user.set({ accounts: user.accounts.filter((acc) => acc != id) });
-    await user.save();
-
+    const account = await Account.findById(id).exec();
     let flag = false;
-
-    // if account exists, update the balance and name
-    if (transactions && account) {
-      transactions.forEach(async (transaction) => {
-        await Transaction.deleteOne({ _id: transaction._id });
+    if(account){
+      const user = await User.findById(req.userId);
+      const transactions = await Transaction.find({ accountId: account._id });
+      transactions?.forEach(async (t) => {
+        await Transaction.findByIdAndDelete(t._id);
       });
+      user.set({
+        accounts: user.accounts.filter((acc) => acc.toString() !== id.toString()),
+      });
+      await user.save();
+      await account.deleteOne();
+      
       flag = true;
+
     }
 
     //   return the message
