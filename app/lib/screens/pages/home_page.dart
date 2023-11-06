@@ -168,6 +168,14 @@ class HomeScreen extends HookConsumerWidget {
     List<Transaction> transactions,
     ValueNotifier<bool> isVisible,
   ) {
+    double getTotalBalance() {
+      double total = 0;
+      for (var account in ref.watch(userProvider).accounts) {
+        total += account.balance;
+      }
+      return total;
+    }
+
     return SizedBox(
       height: 200,
       child: IntrinsicHeight(
@@ -198,7 +206,7 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "${ref.watch(monetaryUnitProvider.notifier).get()}${ref.watch(userProvider.notifier).getTotalBalance().toStringAsFixed(2)}",
+                        "${ref.watch(monetaryUnitProvider.notifier).get()} ${getTotalBalance().toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .displayMedium!

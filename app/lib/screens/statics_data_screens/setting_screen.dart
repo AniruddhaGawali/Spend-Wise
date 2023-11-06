@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
@@ -163,8 +164,7 @@ class SettingScreen extends HookConsumerWidget {
                       child: ListTile(
                         onTap: () async {
                           final response = await http.delete(
-                            Uri.parse(
-                                "https://spendwise-api.herokuapp.com/api/user/delete"),
+                            Uri.parse("${dotenv.env['API_URL']}/user/delete"),
                             headers: {
                               "Authorization":
                                   "Bearer ${ref.read(tokenProvider.notifier).get()}"

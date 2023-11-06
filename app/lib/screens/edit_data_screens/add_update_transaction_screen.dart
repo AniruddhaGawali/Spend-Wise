@@ -21,6 +21,7 @@ import 'package:spendwise/widgits/loading.dart';
 class AddTransactionScreen extends HookConsumerWidget {
   TransactionCatergory? userSelectedCategory;
   Transaction? editTransaction;
+  final _formKey = GlobalKey<FormState>();
 
   AddTransactionScreen({
     super.key,
@@ -40,6 +41,24 @@ class AddTransactionScreen extends HookConsumerWidget {
         .read(userProvider)
         .accounts
         .firstWhere((element) => element.id == transaction.account.id);
+
+    if (editTransaction != null &&
+        editTransaction!.account.id != transaction.account.id) {
+      final oldAccount = ref
+          .read(userProvider)
+          .accounts
+          .firstWhere((element) => element.id == editTransaction!.account.id);
+
+      if (editTransaction!.type == TransactionType.expense) {
+        ref
+            .read(userProvider.notifier)
+            .addAmount(oldAccount, editTransaction!.amount);
+      } else {
+        ref
+            .read(userProvider.notifier)
+            .removeAmount(oldAccount, editTransaction!.amount);
+      }
+    }
 
     if (transaction.type == TransactionType.expense) {
       if (editTransaction != null) {
@@ -70,6 +89,9 @@ class AddTransactionScreen extends HookConsumerWidget {
     ValueNotifier<TransactionType> selectedTransactionType,
     ValueNotifier<bool> isLoading,
   ) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     isLoading.value = true;
     String url = editTransaction == null
         ? "${dotenv.env['API_URL']}/transaction/add"
@@ -115,7 +137,7 @@ class AddTransactionScreen extends HookConsumerWidget {
       final transaction =
           Transaction.fromJson(body as Map<String, dynamic>, ref);
 
-      setTransaction(ref, transaction);
+      await setTransaction(ref, transaction);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -531,37 +553,51 @@ class AddTransactionScreen extends HookConsumerWidget {
     ValueNotifier<double> amount,
   ) {
     return Form(
+        key: _formKey,
         child: Column(
-      children: [
-        TextFormField(
-          initialValue: title.value,
-          decoration: InputDecoration(
-            labelText: "Title",
-            hintText: "Enter title of transaction",
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+          children: [
+            TextFormField(
+              initialValue: title.value,
+              decoration: InputDecoration(
+                labelText: "Title",
+                hintText: "Enter title of transaction",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              validator: (value) => value!.isEmpty ? "Enter title" : null,
+              onChanged: (value) => title.value = value,
             ),
-          ),
-          onChanged: (value) => title.value = value,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        TextFormField(
-          initialValue: amount.value > 0 ? amount.value.toString() : null,
-          maxLength: 10,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: "Amount",
-            hintText: "Enter amount of transaction",
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+            const SizedBox(
+              height: 10,
             ),
-          ),
-          onChanged: (value) => amount.value = double.parse(value),
-        ),
-      ],
-    ));
+            TextFormField(
+              initialValue: amount.value > 0 ? amount.value.toString() : null,
+              maxLength: 10,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: "Amount",
+                hintText: "Enter amount of transaction",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Enter amount";
+                }
+                if (double.tryParse(value) == null) {
+                  return "Enter valid amount";
+                }
+                if (double.parse(value) <= 0) {
+                  return "Enter valid amount";
+                }
+                return null;
+              },
+              onChanged: (value) => amount.value = double.parse(value),
+            ),
+          ],
+        ));
   }
 
   Widget setDateTimeForm(

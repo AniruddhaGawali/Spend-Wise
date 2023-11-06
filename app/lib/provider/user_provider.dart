@@ -87,14 +87,6 @@ class UserNotifier extends Notifier<User> {
     return state.username[0].toUpperCase() + state.username.substring(1);
   }
 
-  double getTotalBalance() {
-    double total = 0;
-    for (var account in state.accounts) {
-      total += account.balance;
-    }
-    return total;
-  }
-
   void logout() {
     state = User(id: "", username: "", accounts: []);
   }

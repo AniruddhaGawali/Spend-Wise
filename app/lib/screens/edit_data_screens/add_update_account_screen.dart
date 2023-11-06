@@ -9,7 +9,6 @@ import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/screens/main_screen.dart';
-import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -28,10 +27,16 @@ class AddAccountScreen extends HookConsumerWidget {
     ValueNotifier<bool> isLoading,
   ) async {
     isLoading.value = true;
-    final account = Account(id: '1', name: name, balance: balance, type: type);
+    final account = Account(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: name,
+      balance: balance,
+      type: type,
+    );
+
     final url = "${dotenv.env['API_URL']}/account/add-account";
 
-    final response = await http.put(
+    final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -39,9 +44,11 @@ class AddAccountScreen extends HookConsumerWidget {
       },
       body: account.toJson(),
     );
-    isLoading.value = false;
 
+    isLoading.value = false;
     if (response.statusCode == 201) {
+      ref.read(userProvider.notifier).addAccount(account);
+
       return true;
     } else {
       return false;
@@ -282,7 +289,10 @@ class AddAccountScreen extends HookConsumerWidget {
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Account created successfully!",
+                                content: Text(
+                                    account == null
+                                        ? "Account created successfully!"
+                                        : "Account updated successfully!",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
@@ -315,7 +325,9 @@ class AddAccountScreen extends HookConsumerWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  "Account creation failed!",
+                                  account == null
+                                      ? "Account creation failed!"
+                                      : "Account updation failed!",
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
