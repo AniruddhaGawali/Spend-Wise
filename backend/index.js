@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/account', require('./controller/account.controller'));
-// app.use('/')
+app.use('/api/email', require('./controller/email.controller'));
 app.use('/api/all-data', require('./controller/get-data.controller'));
 app.use('/api/transaction', require('./controller/transaction.controller'));
 app.use('/api/user', require('./controller/user.controller'));

@@ -16,4 +16,5 @@ const otpSchema = new Schema({
 });
 
 const Otp = client.model('Otp', otpSchema);
-model.exports = Otp;
+
+module.exports = Otp;
