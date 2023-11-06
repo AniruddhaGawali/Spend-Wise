@@ -4,6 +4,11 @@ const auth = require("../middleware/auth.middleware");
 const Account = require("../model/account.model");
 const Transaction = require("../model/transaction.model");
 const User = require("../model/user.model");
+/*
+! changed 
+*/
+// For Encrypted Data
+const EncryptData = require('./../Encryption').encrypt;
 
 /*
  * POST /api/account/add-account
@@ -11,7 +16,10 @@ const User = require("../model/user.model");
 
 router.post("/add-account", auth, async (req, res) => {
   try {
-    const { name, balance, type } = req.body;
+
+    // const to let 
+    let { name, balance, type } = req.body;
+    name = EncryptData(name);
 
     // Create new account
     const newAccount = new Account({
@@ -46,7 +54,10 @@ router.post("/add-account", auth, async (req, res) => {
 router.put("/update/:id", auth, async (req, res) => {
   try {
     // get the balance and name from the request body
-    const { balance, name, type } = req.body;
+    let { balance, name, type } = req.body;
+
+    name = EncryptData(name);
+
     const id = req.params.id;
 
     // find the account by id

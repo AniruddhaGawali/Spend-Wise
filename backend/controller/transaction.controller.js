@@ -4,6 +4,9 @@ const Transaction = require("../model/transaction.model");
 const Account = require("../model/account.model");
 const auth = require("../middleware/auth.middleware");
 
+// For Encrypted Data
+const EncryptData = require("./../Encryption").encrypt;
+
 const router = express.Router();
 
 /*
@@ -58,8 +61,10 @@ router.delete("/delete/:id", auth, async (req, res) => {
 
 router.post("/add", auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, category, date } = req.body;
+    let { title, accountId, type, amount, category, date } = req.body;
     const userId = req.userId;
+
+    title = EncryptData(title);
 
     let tDate = new Date(date);
 
@@ -99,7 +104,10 @@ router.post("/add", auth, async (req, res) => {
 
 router.put("/update/:id", auth, async (req, res) => {
   try {
-    const { title, accountId, type, amount, category, date } = req.body;
+    let { title, accountId, type, amount, category, date } = req.body;
+
+    title = EncryptData(title);
+
     const userId = req.userId;
     const id = req.params.id;
     let tDate = new Date(date);
@@ -183,7 +191,10 @@ router.put("/update/:id", auth, async (req, res) => {
 router.post("/transfer", auth, async (req, res) => {
   try {
     // console.time('transferTime: ');
-    const { fromAccount, toAccount, title, amount, date } = req.body;
+    let { fromAccount, toAccount, title, amount, date } = req.body;
+
+    title = EncryptData(title);
+
     const userId = req.userId;
     let tDate = new Date(date);
 

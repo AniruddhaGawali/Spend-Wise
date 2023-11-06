@@ -5,6 +5,9 @@ const User = require('../model/user.model');
 const Account = require('../model/account.model');
 const Transaction = require('../model/transaction.model');
 
+// For Decryption of Data
+const DecryptData = require('./../Encryption').decrypt;
+
 // GET all user data, including accounts and transactions
 
   /*
@@ -23,8 +26,18 @@ router.get('/', auth, async (req, res) => {
 
     const accounts = await Promise.all(accountPromises);
 
+    // Decrypt account names
+    accounts.forEach((acc) => {
+      acc.name = DecryptData(acc.name) === "" ? acc.name : DecryptData(acc.name) ;
+    });
+
     // Get user's transactions
     const transactions = await Transaction.find({ userId: user.id });
+
+    // Decrypt transaction names
+    transactions.forEach((t) => {
+      t.name = DecryptData(t.name) === "" ? t.name : DecryptData(t.name);
+    });
 
     // Return all data
     res.status(200).json({ user, accounts, transactions });
