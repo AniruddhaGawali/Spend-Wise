@@ -23,6 +23,10 @@ const userSchema = new Schema({
       ref: 'Account',
     },
   ],
+  image: {
+    type: String,
+    required: false,
+  },
 });
 
 const User = client.model('User', userSchema);
