@@ -230,4 +230,9 @@ router.post("/transfer", auth, async (req, res) => {
   }
 });
 
+/*
+* PUT: api/transaction/deleteTransfer/:id
+*/
+
+
 module.exports = router;
