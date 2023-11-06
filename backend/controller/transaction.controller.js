@@ -118,7 +118,35 @@ router.put("/update/:id", auth, async (req, res) => {
       date: tDate,
     });
 
-    if (accountId !== oldTransaction.accountId) {
+    // Save account to database
+    await Transaction.updateOne({ _id: id }, newTransaction);
+    if (oldTransaction.accountId === accountId) {
+      if (oldTransaction.amount > amount) {
+        await Account.updateOne(
+          { _id: accountId },
+          {
+            $inc: {
+              balance:
+                type === "income"
+                  ? -(oldTransaction.amount - amount)
+                  : +(oldTransaction.amount - amount),
+            },
+          }
+        );
+      } else {
+        await Account.updateOne(
+          { _id: accountId },
+          {
+            $inc: {
+              balance:
+                type === "income"
+                  ? +(amount - oldTransaction.amount)
+                  : -(amount - oldTransaction.amount),
+            },
+          }
+        );
+      }
+    } else {
       await Account.updateOne(
         { _id: oldTransaction.accountId },
         {
@@ -130,6 +158,7 @@ router.put("/update/:id", auth, async (req, res) => {
           },
         }
       );
+
       await Account.updateOne(
         { _id: accountId },
         {
@@ -140,36 +169,61 @@ router.put("/update/:id", auth, async (req, res) => {
       );
     }
 
-    // Save account to database
-    await Transaction.updateOne({ _id: id }, newTransaction);
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
-    if (oldTransaction.amount > amount) {
-      await Account.updateOne(
-        { _id: accountId },
-        {
-          $inc: {
-            balance:
-              type === "income"
-                ? -(oldTransaction.amount - amount)
-                : +(oldTransaction.amount - amount),
-          },
-        }
-      );
-    } else {
-      await Account.updateOne(
-        { _id: accountId },
-        {
-          $inc: {
-            balance:
-              type === "income"
-                ? +(amount - oldTransaction.amount)
-                : -(amount - oldTransaction.amount),
-          },
-        }
-      );
+/*
+ * POST : api/transaction/transfer
+ */
+
+router.post("/transfer", auth, async (req, res) => {
+  try {
+    // console.time('transferTime: ');
+    const { fromAccount, toAccount, title, amount, date } = req.body;
+    const userId = req.userId;
+    let tDate = new Date(date);
+
+    const from = await Account.findById(fromAccount);
+
+    if (from.balance < amount) {
+      res.status(400).json({ message: "Insufficient balance" });
     }
 
-    res.status(201).json(newTransaction);
+    await Account.updateOne(
+      { _id: fromAccount },
+      {
+        $inc: {
+          balance: -amount,
+        },
+      }
+    );
+
+    await Account.updateOne(
+      { _id: toAccount },
+      {
+        $inc: {
+          balance: amount,
+        },
+      }
+    );
+
+    const newTransaction = new Transaction({
+      title: title,
+      accountId: fromAccount,
+      type: "transfer",
+      amount: amount,
+      category: "account",
+      userId: userId,
+      date: tDate,
+    });
+
+    await newTransaction.save();
+    // console.timeEnd('transferTime: ');
+    res.status(201).json({ message: "Transfer successful" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
