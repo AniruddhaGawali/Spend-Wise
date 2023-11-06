@@ -4,11 +4,9 @@ const auth = require("../middleware/auth.middleware");
 const Account = require("../model/account.model");
 const Transaction = require("../model/transaction.model");
 const User = require("../model/user.model");
-/*
-! changed 
-*/
+
 // For Encrypted Data
-const EncryptData = require('./../Encryption').encrypt;
+const EncryptData = require("./../Encryption").encrypt;
 
 /*
  * POST /api/account/add-account
@@ -16,8 +14,7 @@ const EncryptData = require('./../Encryption').encrypt;
 
 router.post("/add-account", auth, async (req, res) => {
   try {
-
-    // const to let 
+    // const to let
     let { name, balance, type } = req.body;
     name = EncryptData(name);
 
@@ -38,7 +35,7 @@ router.post("/add-account", auth, async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Account created and added to user successfully" });
+      .json({ account: newAccount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -89,25 +86,26 @@ router.put("/update/:id", auth, async (req, res) => {
 /*
  *DELETE:  api/account/delete/:id
  */
- router.delete("/delete/:id", auth, async (req, res) => {
+router.delete("/delete/:id", auth, async (req, res) => {
   try {
     const id = req.params.id;
     const account = await Account.findById(id).exec();
     let flag = false;
-    if(account){
+    if (account) {
       const user = await User.findById(req.userId);
       const transactions = await Transaction.find({ accountId: account._id });
       transactions?.forEach(async (t) => {
         await Transaction.findByIdAndDelete(t._id);
       });
       user.set({
-        accounts: user.accounts.filter((acc) => acc.toString() !== id.toString()),
+        accounts: user.accounts.filter(
+          (acc) => acc.toString() !== id.toString()
+        ),
       });
       await user.save();
       await account.deleteOne();
-      
-      flag = true;
 
+      flag = true;
     }
 
     //   return the message

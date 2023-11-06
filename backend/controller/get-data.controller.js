@@ -34,7 +34,7 @@ router.get('/', auth, async (req, res) => {
     // Get user's transactions
     const transactions = await Transaction.find({ userId: user.id });
 
-    // // Decrypt transaction names
+    // Decrypt transaction names
     transactions.forEach((t) => {
       t.title = DecryptData(t.title) === "" ? t.title : DecryptData(t.title);
     });

@@ -184,7 +184,8 @@ router.put("/update/:id", auth, async (req, res) => {
         }
       );
     }
-    newTransaction.title = DecryptData(newTransaction.title)
+    
+    newTransaction.title = DecryptData(newTransaction.title) === "" ? newTransaction.title : DecryptData(newTransaction.title);
 
     res.status(201).json(newTransaction);
   } catch (error) {

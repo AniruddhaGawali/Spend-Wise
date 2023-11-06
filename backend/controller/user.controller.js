@@ -106,7 +106,7 @@ router.post("/image/:id", auth, async (req, res) => {
   try {
     const { image } = req.params.id;
     const user = await User.findById(req.userId);
-    user.Image = image;
+    user.image = image;
     await user.save();
     res.status(200).json({ message: "Image updated successfully" });
   } catch (error) {
