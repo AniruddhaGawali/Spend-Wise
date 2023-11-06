@@ -36,6 +36,8 @@ class BalanceCards extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final totalBalance = getTotalBalance(ref);
+
     return SizedBox(
       height: 200,
       child: IntrinsicHeight(
@@ -67,7 +69,7 @@ class BalanceCards extends ConsumerWidget {
                     ),
                     FittedBox(
                       child: Text(
-                        "${ref.watch(monetaryUnitProvider.notifier).get()} ${getTotalBalance(ref).toStringAsFixed(2)}",
+                        "${ref.watch(monetaryUnitProvider.notifier).get()} ${totalBalance.toStringAsFixed(2)}",
                         style: Theme.of(context)
                             .textTheme
                             .displayMedium!
@@ -102,7 +104,9 @@ class BalanceCards extends ConsumerWidget {
                     ),
                   ]),
             ),
+
             const Spacer(),
+
             // button to add transaction
             VisibilityDetector(
               key: const Key("add_transaction_button"),
@@ -149,6 +153,5 @@ class BalanceCards extends ConsumerWidget {
         ),
       ),
     );
-    ;
   }
 }
