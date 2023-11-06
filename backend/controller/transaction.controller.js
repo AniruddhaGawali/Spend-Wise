@@ -6,6 +6,7 @@ const auth = require("../middleware/auth.middleware");
 
 // For Encrypted Data
 const EncryptData = require("./../Encryption").encrypt;
+const DecryptData = require("./../Encryption").decrypt;
 
 const router = express.Router();
 
@@ -15,6 +16,11 @@ const router = express.Router();
 router.get("/", auth, async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.userId });
+    
+    transactions.forEach((t) => {
+      t.title = DecryptData(t.title) === "" ? t.title : DecryptData(t.title);
+    });
+
     res.status(200).json(transactions);
   } catch (error) {
     console.error(error);
