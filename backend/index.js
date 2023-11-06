@@ -22,7 +22,6 @@ app.use('/api/user', require('./controller/user.controller'));
 app.use('/api/version', require('./controller/version.controller'));
 
 app.listen(PORT, async () => {
-  // await connect();
   console.log(`Listening on the port ${PORT}`);
 });
 
