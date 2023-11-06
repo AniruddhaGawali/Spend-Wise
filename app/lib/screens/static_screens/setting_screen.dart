@@ -1,19 +1,25 @@
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
-
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+//  Provider:
 import 'package:spendwise/provider/monetary_units.dart';
 import 'package:spendwise/provider/token_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/screens/edit_data_screens/select_%20monetary_unit.dart';
-
+import 'package:spendwise/widgits/cards/tile_card.dart';
 import 'package:spendwise/widgits/cards/update_card.dart';
-import 'package:http/http.dart' as http;
 
 class SettingScreen extends HookConsumerWidget {
   late final LocalAuthentication auth;
@@ -23,9 +29,13 @@ class SettingScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // to check if biometric is supported
     final biometricSupported = useState(false);
+
+    // to check if biometric is on
     final authOn = useState(false);
 
+    // to check if biometric is on
     useEffect(() {
       isBiometricSupported().then(
         (value) => biometricSupported.value = value,
@@ -56,63 +66,38 @@ class SettingScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 50,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onBackground
-                                .withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: Icon(MdiIcons.fingerprint),
-                        title: const Text("Biometric Authentication"),
-                        trailing: biometricSupported.value
-                            ? Switch(
-                                onChanged: (value) {
-                                  setBiometric(value).then((value) {
-                                    authOn.value = value;
-                                  });
-                                },
-                                value: authOn.value,
-                              )
-                            : const Text("Not Supported"),
-                      ),
+                    TileCard(
+                      leading: Icon(MdiIcons.fingerprint),
+                      title: const Text("Biometric Authentication"),
+                      trailing: biometricSupported.value
+                          ? Switch(
+                              onChanged: (value) {
+                                setBiometric(value).then((value) {
+                                  authOn.value = value;
+                                });
+                              },
+                              value: authOn.value,
+                            )
+                          : const Text("Not Supported"),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onBackground
-                                .withOpacity(0.1),
-                            width: 1,
+                    TileCard(
+                      leading: Icon(MdiIcons.cash100),
+                      title: const Text("Monetary Unit"),
+                      trailing: Text(
+                        ref.read(monetaryUnitProvider.notifier).get(),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      onClick: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const SelectMonetaryUnitScreen(),
                           ),
-                        ),
-                      ),
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const SelectMonetaryUnitScreen(),
-                            ),
-                          );
-                        },
-                        title: const Text("Monetary Unit"),
-                        leading: Text(
-                          ref.read(monetaryUnitProvider.notifier).get(),
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
+                        );
+                      },
                     ),
                     const SizedBox(
                       height: 30,
@@ -231,12 +216,14 @@ class SettingScreen extends HookConsumerWidget {
     );
   }
 
+  // to check if biometric is supported
   Future<bool> isBiometricSupported() async {
     auth = LocalAuthentication();
     bool isSupported = await auth.isDeviceSupported();
     return isSupported;
   }
 
+  // to set or unset biometric
   Future<bool> setBiometric(bool isOn) async {
     bool isAuth = await auth.authenticate(
         localizedReason: "Scan your fingerprint to authenticate",

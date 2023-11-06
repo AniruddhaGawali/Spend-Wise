@@ -1,33 +1,65 @@
+// Flutter imports
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+
+// Package imports
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:http/http.dart' as http;
+
+// Provider
 import 'package:spendwise/provider/token_provider.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/main_screen.dart';
 import 'package:spendwise/screens/register_screen_screen.dart';
-
-import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/auth.dart';
 
-import 'package:http/http.dart' as http;
+// utils
+import 'package:spendwise/utils/fetch_all_data.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Future<bool> _login(String email, String username, String password,
-      bool rememberMe, WidgetRef ref, BuildContext context) async {
+  @override
+  Widget build(BuildContext context) {
+    return AuthWidget(
+      isLogin: true,
+      title: "Login",
+      subTitle: "Welcome Back!",
+      description: "Login to your account to get started.",
+      buttonText: "Login",
+      buttonIcon: MdiIcons.loginVariant,
+      bottomText: "Don't have an account?",
+      bottomButtonText: "Register",
+      bottomWidget: const RegisterScreeen(),
+      nextScreen: MainScreen(),
+      onSubmit: _login,
+    );
+  }
+
+  // Login Function
+  Future<bool> _login(
+    String email,
+    String username,
+    String password,
+    bool rememberMe,
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
     final url = "${dotenv.env['API_URL']}/user/login";
 
+    // send request
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8'
       },
       body: jsonEncode({"username": username, "password": password}),
     );
 
+    // decode response
     Map<String, dynamic> body = jsonDecode(response.body);
 
     if (context.mounted) {
@@ -46,12 +78,15 @@ class LoginScreen extends StatelessWidget {
           ),
         );
 
+        // set token in provider
         ref.read(tokenProvider.notifier).set(body["token"]);
 
+        // save token to local storage
         if (rememberMe) {
           ref.read(tokenProvider.notifier).saveToken();
         }
 
+        // fetch data from server of user
         await fetchData(ref);
 
         return true;
@@ -82,22 +117,5 @@ class LoginScreen extends StatelessWidget {
       }
     }
     return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AuthWidget(
-      isLogin: true,
-      title: "Login",
-      subTitle: "Welcome Back!",
-      description: "Login to your account to get started.",
-      buttonText: "Login",
-      buttonIcon: MdiIcons.loginVariant,
-      bottomText: "Don't have an account?",
-      bottomButtonText: "Register",
-      bottomWidget: const RegisterScreeen(),
-      nextScreen: MainScreen(),
-      onSubmit: _login,
-    );
   }
 }

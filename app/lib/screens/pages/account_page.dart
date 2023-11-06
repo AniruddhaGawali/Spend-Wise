@@ -1,8 +1,15 @@
+// Flutter Packages
 import 'package:flutter/material.dart';
+
+// Packages
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+//  Model & Provider:
 import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
 import 'package:spendwise/screens/edit_data_screens/update_account_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
@@ -69,6 +76,8 @@ class AllAccountsScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
+
+        // Floating Action Button to add new account
         floatingActionButton: FloatingActionButton.large(
           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           onPressed: () {

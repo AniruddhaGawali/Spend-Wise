@@ -1,23 +1,53 @@
+// Flutter imports
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+
+// Package imports
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
+// Provider
 import 'package:spendwise/provider/token_provider.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/widgits/auth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'package:http/http.dart' as http;
 
 class RegisterScreeen extends StatelessWidget {
   const RegisterScreeen({super.key});
 
-  Future<bool> _register(String email, String username, String password,
-      bool rememberMe, WidgetRef ref, BuildContext context) async {
+  @override
+  Widget build(BuildContext context) {
+    return AuthWidget(
+      isLogin: false,
+      title: "Register",
+      subTitle: "Welcome to SpendWise!",
+      description: "Create an account to get started.",
+      buttonText: "Register",
+      buttonIcon: MdiIcons.accountPlusOutline,
+      bottomText: "Already have an account?",
+      bottomButtonText: "Login",
+      bottomWidget: const LoginScreen(),
+      nextScreen: const AddAccountScreen(),
+      onSubmit: _register,
+    );
+  }
+
+// Register Function
+  Future<bool> _register(
+    String email,
+    String username,
+    String password,
+    bool rememberMe,
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
     final url = "${dotenv.env['API_URL']}/user/register";
 
+    // send request
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
@@ -30,6 +60,7 @@ class RegisterScreeen extends StatelessWidget {
       }),
     );
 
+    // handle response
     Map<String, dynamic> body = jsonDecode(response.body);
 
     if (context.mounted) {
@@ -45,10 +76,15 @@ class RegisterScreeen extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           ),
         );
+
+        // set token
         ref.read(tokenProvider.notifier).set(body["token"]);
+
+        // save token
         if (rememberMe) {
           ref.read(tokenProvider.notifier).saveToken();
         }
+
         return true;
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,22 +113,5 @@ class RegisterScreeen extends StatelessWidget {
       }
     }
     return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AuthWidget(
-      isLogin: false,
-      title: "Register",
-      subTitle: "Welcome to SpendWise!",
-      description: "Create an account to get started.",
-      buttonText: "Register",
-      buttonIcon: MdiIcons.accountPlusOutline,
-      bottomText: "Already have an account?",
-      bottomButtonText: "Login",
-      bottomWidget: const LoginScreen(),
-      nextScreen: const AddAccountScreen(),
-      onSubmit: _register,
-    );
   }
 }

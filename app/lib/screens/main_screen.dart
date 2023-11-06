@@ -1,6 +1,11 @@
+// Flutter imports
 import 'package:flutter/material.dart';
+
+// Package imports
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/pages/account_page.dart';
 import 'package:spendwise/screens/pages/home_page.dart';
 
