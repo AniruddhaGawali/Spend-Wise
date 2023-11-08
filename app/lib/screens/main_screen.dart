@@ -22,9 +22,9 @@ class MainScreen extends HookWidget {
         controller: pageController,
         onPageChanged: (value) => selectedIndex.value = value,
         // ignore: prefer_const_literals_to_create_immutables
-        children: [
+        children: const [
           HomeScreen(),
-          const AllAccountsScreen(),
+          AllAccountsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

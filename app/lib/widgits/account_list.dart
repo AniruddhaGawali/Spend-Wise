@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/account.dart';
-import 'package:spendwise/provider/user_provider.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 
 // ignore: must_be_immutable

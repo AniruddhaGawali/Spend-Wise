@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -39,14 +37,22 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedFromAccount = useState<Account>(editTransaction != null
         ? ref
             .read(userProvider.notifier)
-            .getAccountById(editTransaction!.account.id)
+            .getAccountById(editTransaction!.fromAccount.id)
         : ref.read(userProvider).accounts.first);
 
-    final selectedToAccount = useState<Account>(editTransaction != null
-        ? ref
-            .read(userProvider.notifier)
-            .getAccountById(editTransaction!.account.id)
-        : ref.read(userProvider).accounts.first);
+    final selectedToAccount = useState<Account>(
+      editTransaction != null
+          ? ref
+              .read(userProvider.notifier)
+              .getAccountById(editTransaction!.toAccount!.id)
+          : ref
+              .watch(userProvider)
+              .accounts
+              .where(
+                (element) => element.id != selectedFromAccount.value.id,
+              )
+              .first,
+    );
 
     final title = useState<String>(editTransaction?.title ?? "");
     final amount = useState<double>(editTransaction?.amount ?? 0);
@@ -199,20 +205,37 @@ class AddTransactionScreen extends HookConsumerWidget {
                       width: double.infinity,
                       child: FilledButton.icon(
                         onPressed: () {
-                          addUpdateTransaction(
-                            ref,
-                            context,
-                            title,
-                            amount,
-                            selectedDate,
-                            selectedTime,
-                            selectedCategory,
-                            selectedFromAccount,
-                            selectedTransactionType,
-                            isLoading,
-                            _formKey,
-                            editTransaction,
-                          );
+                          selectedTransactionType.value ==
+                                  TransactionType.transfer
+                              ? createUpdateTransafer(
+                                  ref,
+                                  context,
+                                  title,
+                                  amount,
+                                  selectedDate,
+                                  selectedTime,
+                                  selectedCategory,
+                                  selectedFromAccount,
+                                  selectedToAccount,
+                                  selectedTransactionType,
+                                  isLoading,
+                                  _formKey,
+                                  editTransaction,
+                                )
+                              : addUpdateTransaction(
+                                  ref,
+                                  context,
+                                  title,
+                                  amount,
+                                  selectedDate,
+                                  selectedTime,
+                                  selectedCategory,
+                                  selectedFromAccount,
+                                  selectedTransactionType,
+                                  isLoading,
+                                  _formKey,
+                                  editTransaction,
+                                );
                         },
                         icon: isLoading.value
                             ? SizedBox(
@@ -472,62 +495,6 @@ class AddTransactionScreen extends HookConsumerWidget {
                     .toList()
           ],
         ));
-  }
-
-  Widget transferWidgit(
-      BuildContext context, WidgetRef ref, Transaction? editTransaction) {
-    final selectedAccount = useState<Account>(ref
-        .read(userProvider)
-        .accounts
-        .firstWhere((element) => element.id != editTransaction!.account.id));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 20,
-        ),
-        Text(
-          "Transfer to",
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        SizedBox(
-          height: 50,
-          width: double.infinity,
-          child: ListView(
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            children: [
-              ...ref
-                  .watch(userProvider)
-                  .accounts
-                  .where((element) => element.id != editTransaction!.account.id)
-                  .map(
-                    (e) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: CustomActionChip(
-                        label: e.name,
-                        icon: e.type == AccountType.cash
-                            ? MdiIcons.cashMultiple
-                            : MdiIcons.bank,
-                        selected: selectedAccount.value == e,
-                        onPressed: () {
-                          selectedAccount.value = e;
-                        },
-                      ),
-                    ),
-                  )
-                  .toList()
-            ],
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _noTransactions(BuildContext context) {

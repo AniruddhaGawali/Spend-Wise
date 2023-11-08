@@ -61,7 +61,7 @@ class AllAccountsScreen extends ConsumerWidget {
                                   .watch(transactionProvider.notifier)
                                   .getSorted()
                                   .where((element) =>
-                                      element.account.id == account.id)
+                                      element.fromAccount.id == account.id)
                                   .toList(),
                               title: account.name,
                             );

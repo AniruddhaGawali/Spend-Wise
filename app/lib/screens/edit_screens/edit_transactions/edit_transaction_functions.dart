@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,32 +13,35 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 
 setTransaction(
-    WidgetRef ref, Transaction transaction, Transaction? editTransaction) {
+  WidgetRef ref,
+  Transaction transaction,
+  Transaction? editTransaction,
+) {
   if (editTransaction != null) {
-    ref.read(transactionProvider.notifier).removeTransaction(editTransaction!);
+    ref.read(transactionProvider.notifier).removeTransaction(editTransaction);
   }
   ref.read(transactionProvider.notifier).addTransaction(transaction);
 
   final account = ref
       .read(userProvider)
       .accounts
-      .firstWhere((element) => element.id == transaction.account.id);
+      .firstWhere((element) => element.id == transaction.fromAccount.id);
 
   if (editTransaction != null &&
-      editTransaction.account.id != transaction.account.id) {
+      editTransaction.fromAccount.id != transaction.fromAccount.id) {
     final oldAccount = ref
         .read(userProvider)
         .accounts
-        .firstWhere((element) => element.id == editTransaction!.account.id);
+        .firstWhere((element) => element.id == editTransaction.fromAccount.id);
 
-    if (editTransaction!.type == TransactionType.expense) {
+    if (editTransaction.type == TransactionType.expense) {
       ref
           .read(userProvider.notifier)
-          .addAmount(oldAccount, editTransaction!.amount);
+          .addAmount(oldAccount, editTransaction.amount);
     } else {
       ref
           .read(userProvider.notifier)
-          .removeAmount(oldAccount, editTransaction!.amount);
+          .removeAmount(oldAccount, editTransaction.amount);
     }
   }
 
@@ -45,14 +49,14 @@ setTransaction(
     if (editTransaction != null) {
       ref
           .read(userProvider.notifier)
-          .addAmount(account, editTransaction!.amount);
+          .addAmount(account, editTransaction.amount);
     }
     ref.read(userProvider.notifier).removeAmount(account, transaction.amount);
   } else {
     if (editTransaction != null) {
       ref
           .read(userProvider.notifier)
-          .removeAmount(account, editTransaction!.amount);
+          .removeAmount(account, editTransaction.amount);
     }
     ref.read(userProvider.notifier).addAmount(account, transaction.amount);
   }
@@ -78,7 +82,7 @@ addUpdateTransaction(
   isLoading.value = true;
   String url = editTransaction == null
       ? "${dotenv.env['API_URL']}/transaction/add"
-      : "${dotenv.env['API_URL']}/transaction/update/${editTransaction!.id}";
+      : "${dotenv.env['API_URL']}/transaction/update/${editTransaction.id}";
 
   final createTransaction = {
     "title": title.value,
@@ -157,6 +161,97 @@ addUpdateTransaction(
   isLoading.value = false;
 }
 
+Future<void> createUpdateTransafer(
+  WidgetRef ref,
+  BuildContext context,
+  ValueNotifier<String> title,
+  ValueNotifier<double> amount,
+  ValueNotifier<DateTime> date,
+  ValueNotifier<TimeOfDay> time,
+  ValueNotifier<TransactionCatergory> selectedCategory,
+  ValueNotifier<Account> selectedFromAccount,
+  ValueNotifier<Account> selectedToAccount,
+  ValueNotifier<TransactionType> selectedTransactionType,
+  ValueNotifier<bool> isLoading,
+  GlobalKey<FormState> formKey,
+  Transaction? editTransaction,
+) async {
+  if (!formKey.currentState!.validate()) {
+    return;
+  }
+
+  if (selectedToAccount.value == selectedFromAccount.value) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Please select valid tranfer to account",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                )),
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+      ),
+    );
+    return;
+  }
+
+  // isLoading.value = true;
+  // String url = editTransaction == null
+  //     ? "${dotenv.env['API_URL']}/transaction/add"
+  //     : "${dotenv.env['API_URL']}/transaction/update/${editTransaction.id}";
+
+  // final createTransaction = {
+  //   "title": title.value,
+  //   "accountId": selectedFromAccount.value.id,
+  //   "toAccountId": selectedToAccount.value.id,
+  //   "type": selectedTransactionType.value.name,
+  //   "amount": amount.value,
+  //   "category": selectedCategory.value.name,
+  //   "date": DateTime(date.value.year, date.value.month, date.value.day,
+  //           time.value.hour, time.value.minute)
+  //       .toUtc()
+  //       .toString()
+  // };
+
+  // http.Response response;
+
+  // if (editTransaction == null) {
+  //   response = await http.post(
+  //     Uri.parse(url),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //       "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+  //     },
+  //     body: jsonEncode(createTransaction),
+  //   );
+  // } else {
+  //   response = await http.put(
+  //     Uri.parse(url),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //       "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+  //     },
+  //     body: jsonEncode(createTransaction),
+  //   );
+  // }
+
+  // if (response.statusCode == 201) {
+  //   final body = jsonDecode(response.body);
+  // }
+
+  final newTransaction = Transaction(
+    id: DateTime.now().toString(),
+    title: title.value,
+    amount: amount.value,
+    fromAccount: selectedFromAccount.value,
+    toAccount: selectedToAccount.value,
+    type: selectedTransactionType.value,
+    category: selectedCategory.value,
+    date: DateTime.now(),
+  );
+
+  ref.read(transactionProvider.notifier).addTransaction(newTransaction);
+}
+
 Future<bool> deleteTrasaction(
   WidgetRef ref,
   BuildContext context,
@@ -174,21 +269,21 @@ Future<bool> deleteTrasaction(
   );
 
   if (response.statusCode == 200) {
-    ref.read(transactionProvider.notifier).removeTransaction(editTransaction!);
+    ref.read(transactionProvider.notifier).removeTransaction(editTransaction);
 
     final account = ref
         .read(userProvider)
         .accounts
-        .firstWhere((element) => element.id == editTransaction!.account.id);
+        .firstWhere((element) => element.id == editTransaction.fromAccount.id);
 
-    if (editTransaction!.type == TransactionType.expense) {
+    if (editTransaction.type == TransactionType.expense) {
       ref
           .read(userProvider.notifier)
-          .addAmount(account, editTransaction!.amount);
+          .addAmount(account, editTransaction.amount);
     } else {
       ref
           .read(userProvider.notifier)
-          .removeAmount(account, editTransaction!.amount);
+          .removeAmount(account, editTransaction.amount);
     }
 
     if (context.mounted) {

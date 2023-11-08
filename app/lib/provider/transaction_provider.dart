@@ -21,7 +21,8 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
   }
 
   void removeTransactionOfAccount(Account account) {
-    state = state.where((element) => element.account.id != account.id).toList();
+    state =
+        state.where((element) => element.fromAccount.id != account.id).toList();
   }
 
   List<Transaction> transactionsofMonth() {

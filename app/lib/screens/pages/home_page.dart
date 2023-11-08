@@ -31,8 +31,7 @@ enum TransactionFilter {
 }
 
 class HomeScreen extends HookConsumerWidget {
-  HomeScreen({super.key});
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
