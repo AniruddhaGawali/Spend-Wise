@@ -17,7 +17,7 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 
 // Screens & Widgets
-import 'package:spendwise/screens/edit_data_screens/add_update_transaction_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_transactions/edit_transaction_screen.dart';
 import 'package:spendwise/screens/static_screens/setting_screen.dart';
 import 'package:spendwise/screens/static_screens/user_detail_screen.dart';
 

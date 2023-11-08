@@ -24,16 +24,6 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
     state = state.where((element) => element.account.id != account.id).toList();
   }
 
-  double totalExpenses() {
-    double total = 0;
-    for (var transaction in state) {
-      if (transaction.type == TransactionType.expense) {
-        total += transaction.amount;
-      }
-    }
-    return total;
-  }
-
   List<Transaction> transactionsofMonth() {
     return sortByDate(state
         .where((element) =>

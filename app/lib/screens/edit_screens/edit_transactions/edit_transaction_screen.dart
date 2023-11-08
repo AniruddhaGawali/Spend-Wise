@@ -1,20 +1,18 @@
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:spendwise/model/account.dart';
 import 'package:spendwise/model/transaction.dart';
-import 'package:spendwise/provider/token_provider.dart';
-import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
-import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_account/edit_acccount_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_transactions/edit_transaction_functions.dart';
+import 'package:spendwise/widgits/account_list.dart';
 import 'package:spendwise/widgits/action_chip.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'package:spendwise/widgits/loading.dart';
 
 // ignore: must_be_immutable
@@ -29,263 +27,10 @@ class AddTransactionScreen extends HookConsumerWidget {
     this.editTransaction,
   });
 
-  setTransaction(WidgetRef ref, Transaction transaction) {
-    if (editTransaction != null) {
-      ref
-          .read(transactionProvider.notifier)
-          .removeTransaction(editTransaction!);
-    }
-    ref.read(transactionProvider.notifier).addTransaction(transaction);
-
-    final account = ref
-        .read(userProvider)
-        .accounts
-        .firstWhere((element) => element.id == transaction.account.id);
-
-    if (editTransaction != null &&
-        editTransaction!.account.id != transaction.account.id) {
-      final oldAccount = ref
-          .read(userProvider)
-          .accounts
-          .firstWhere((element) => element.id == editTransaction!.account.id);
-
-      if (editTransaction!.type == TransactionType.expense) {
-        ref
-            .read(userProvider.notifier)
-            .addAmount(oldAccount, editTransaction!.amount);
-      } else {
-        ref
-            .read(userProvider.notifier)
-            .removeAmount(oldAccount, editTransaction!.amount);
-      }
-    }
-
-    if (transaction.type == TransactionType.expense) {
-      if (editTransaction != null) {
-        ref
-            .read(userProvider.notifier)
-            .addAmount(account, editTransaction!.amount);
-      }
-      ref.read(userProvider.notifier).removeAmount(account, transaction.amount);
-    } else {
-      if (editTransaction != null) {
-        ref
-            .read(userProvider.notifier)
-            .removeAmount(account, editTransaction!.amount);
-      }
-      ref.read(userProvider.notifier).addAmount(account, transaction.amount);
-    }
-  }
-
-  addTransaction(
-    WidgetRef ref,
-    BuildContext context,
-    ValueNotifier<String> title,
-    ValueNotifier<double> amount,
-    ValueNotifier<DateTime> date,
-    ValueNotifier<TimeOfDay> time,
-    ValueNotifier<TransactionCatergory> selectedCategory,
-    ValueNotifier<Account> selectedAccount,
-    ValueNotifier<TransactionType> selectedTransactionType,
-    ValueNotifier<bool> isLoading,
-  ) async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    isLoading.value = true;
-    String url = editTransaction == null
-        ? "${dotenv.env['API_URL']}/transaction/add"
-        : "${dotenv.env['API_URL']}/transaction/update/${editTransaction!.id}";
-
-    final createTransaction = {
-      "title": title.value,
-      "accountId": selectedAccount.value.id,
-      "type": selectedTransactionType.value.name,
-      "amount": amount.value,
-      "category": selectedCategory.value.name,
-      "date": DateTime(date.value.year, date.value.month, date.value.day,
-              time.value.hour, time.value.minute)
-          .toUtc()
-          .toString()
-    };
-
-    http.Response response;
-
-    if (editTransaction == null) {
-      response = await http.post(
-        Uri.parse(url),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-        },
-        body: jsonEncode(createTransaction),
-      );
-    } else {
-      response = await http.put(
-        Uri.parse(url),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-        },
-        body: jsonEncode(createTransaction),
-      );
-    }
-
-    if (response.statusCode == 201) {
-      // await fetchTransaction(ref);
-      final body = jsonDecode(response.body);
-      final transaction =
-          Transaction.fromJson(body as Map<String, dynamic>, ref);
-
-      await setTransaction(ref, transaction);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                editTransaction == null
-                    ? "Transaction added successfully!"
-                    : "Transaction updated successfully!",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    )),
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-        );
-
-        Navigator.pop(context, true);
-      }
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                editTransaction == null
-                    ? "Transaction addition failed!"
-                    : "Transaction updation failed!",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    )),
-            backgroundColor: Theme.of(context).colorScheme.errorContainer,
-          ),
-        );
-      }
-    }
-    isLoading.value = false;
-  }
-
-  Future<bool> deleteTrasaction(WidgetRef ref, BuildContext context) async {
-    String url =
-        "${dotenv.env['API_URL']}/transaction/delete/${editTransaction!.id}";
-
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-      },
-    );
-
-    if (response.statusCode == 200) {
-      ref
-          .read(transactionProvider.notifier)
-          .removeTransaction(editTransaction!);
-
-      final account = ref
-          .read(userProvider)
-          .accounts
-          .firstWhere((element) => element.id == editTransaction!.account.id);
-
-      if (editTransaction!.type == TransactionType.expense) {
-        ref
-            .read(userProvider.notifier)
-            .addAmount(account, editTransaction!.amount);
-      } else {
-        ref
-            .read(userProvider.notifier)
-            .removeAmount(account, editTransaction!.amount);
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Transaction deleted successfully!",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    )),
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-        );
-      }
-      return true;
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Transaction deletion failed!",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    )),
-            backgroundColor: Theme.of(context).colorScheme.errorContainer,
-          ),
-        );
-      }
-      return false;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.read(userProvider).accounts.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(editTransaction?.title ?? "Add Transaction"),
-        ),
-        body: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "No account for transaction\nPlease add account first",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  height: 50,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (_) {
-                        return const AddAccountScreen();
-                      }));
-                    },
-                    icon: Icon(
-                      MdiIcons.plus,
-                      size: 30,
-                    ),
-                    label: Text(
-                      "Create Account",
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ),
-              ],
-            )),
-      );
+      return _noTransactions(context);
     }
 
     final selectedTransactionType = useState<TransactionType>(
@@ -332,7 +77,8 @@ class AddTransactionScreen extends HookConsumerWidget {
             editTransaction != null
                 ? IconButton(
                     onPressed: () async {
-                      bool isdeleted = await deleteTrasaction(ref, context);
+                      bool isdeleted =
+                          await deleteTrasaction(ref, context, editTransaction);
                       if (isdeleted && context.mounted) {
                         Navigator.pop(context, true);
                       }
@@ -388,40 +134,16 @@ class AddTransactionScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 20,
                     ),
+
+                    // from account
                     Padding(
                       padding: const EdgeInsets.all(5),
                       child: Text("From Account",
                           style: Theme.of(context).textTheme.bodyMedium!),
                     ),
-                    SizedBox(
-                      height: 50,
-                      width: double.infinity,
-                      child: ListView(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          ...ref
-                              .watch(userProvider)
-                              .accounts
-                              .map(
-                                (e) => Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 5),
-                                  child: CustomActionChip(
-                                    label: e.name,
-                                    icon: e.type == AccountType.cash
-                                        ? MdiIcons.cashMultiple
-                                        : MdiIcons.bank,
-                                    selected: selectedFromAccount.value == e,
-                                    onPressed: () {
-                                      selectedFromAccount.value = e;
-                                    },
-                                  ),
-                                ),
-                              )
-                              .toList()
-                        ],
-                      ),
+                    AccountList(
+                      selectedAccount: selectedFromAccount,
+                      accounts: ref.watch(userProvider).accounts,
                     ),
                     SizedBox(
                       height: selectedTransactionType.value ==
@@ -429,6 +151,8 @@ class AddTransactionScreen extends HookConsumerWidget {
                           ? 20
                           : 0,
                     ),
+
+                    // to transfer money from one account to another
                     selectedTransactionType.value == TransactionType.transfer
                         ? Padding(
                             padding: const EdgeInsets.all(5),
@@ -437,41 +161,20 @@ class AddTransactionScreen extends HookConsumerWidget {
                           )
                         : const SizedBox.shrink(),
                     selectedTransactionType.value == TransactionType.transfer
-                        ? SizedBox(
-                            height: 50,
-                            width: double.infinity,
-                            child: ListView(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                ...ref
-                                    .watch(userProvider)
-                                    .accounts
-                                    .map(
-                                      (e) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5),
-                                        child: CustomActionChip(
-                                          label: e.name,
-                                          icon: e.type == AccountType.cash
-                                              ? MdiIcons.cashMultiple
-                                              : MdiIcons.bank,
-                                          selected:
-                                              selectedToAccount.value == e,
-                                          onPressed: () {
-                                            selectedToAccount.value = e;
-                                          },
-                                        ),
-                                      ),
-                                    )
-                                    .toList()
-                              ],
-                            ),
+                        ? AccountList(
+                            selectedAccount: selectedToAccount,
+                            accounts: ref
+                                .watch(userProvider)
+                                .accounts
+                                .where((element) =>
+                                    element.id != selectedFromAccount.value.id)
+                                .toList(),
                           )
                         : const SizedBox.shrink(),
                     const SizedBox(
                       height: 20,
                     ),
+
                     formInput(
                       title,
                       amount,
@@ -496,17 +199,20 @@ class AddTransactionScreen extends HookConsumerWidget {
                       width: double.infinity,
                       child: FilledButton.icon(
                         onPressed: () {
-                          addTransaction(
-                              ref,
-                              context,
-                              title,
-                              amount,
-                              selectedDate,
-                              selectedTime,
-                              selectedCategory,
-                              selectedFromAccount,
-                              selectedTransactionType,
-                              isLoading);
+                          addUpdateTransaction(
+                            ref,
+                            context,
+                            title,
+                            amount,
+                            selectedDate,
+                            selectedTime,
+                            selectedCategory,
+                            selectedFromAccount,
+                            selectedTransactionType,
+                            isLoading,
+                            _formKey,
+                            editTransaction,
+                          );
                         },
                         icon: isLoading.value
                             ? SizedBox(
@@ -639,9 +345,9 @@ class AddTransactionScreen extends HookConsumerWidget {
         initialTime: time.value,
       );
       if (picked != null && picked != time.value) {
-        DateTime now = DateTime.now();
-        DateTime selectedDateTime =
-            DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        DateTime selectedDate = date.value;
+        DateTime selectedDateTime = DateTime(selectedDate.year,
+            selectedDate.month, selectedDate.day, picked.hour, picked.minute);
 
         if (selectedDateTime.isAfter(DateTime.now())) {
           if (context.mounted) {
@@ -821,6 +527,54 @@ class AddTransactionScreen extends HookConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _noTransactions(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(editTransaction?.title ?? "Add Transaction"),
+      ),
+      body: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "No account for transaction\nPlease add account first",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height: 50,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) {
+                      return const AddAccountScreen();
+                    }));
+                  },
+                  icon: Icon(
+                    MdiIcons.plus,
+                    size: 30,
+                  ),
+                  label: Text(
+                    "Create Account",
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

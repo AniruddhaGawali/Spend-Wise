@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spendwise/provider/user_provider.dart';
-import 'package:spendwise/screens/edit_data_screens/add_update_account_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_account/edit_acccount_screen.dart';
 import 'package:spendwise/widgits/cards/account_card.dart';
 
 class EditAccounts extends ConsumerWidget {
