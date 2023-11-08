@@ -13,10 +13,11 @@ const router = express.Router();
 /*
  * GET: api/transaction
  */
+
 router.get("/", auth, async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.userId });
-    
+
     transactions.forEach((t) => {
       t.title = DecryptData(t.title) === "" ? t.title : DecryptData(t.title);
     });
@@ -96,9 +97,9 @@ router.post("/add", auth, async (req, res) => {
         },
       }
     );
-    
+
     newTransaction.title = DecryptData(newTransaction.title);
-    
+
     res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
@@ -184,8 +185,11 @@ router.put("/update/:id", auth, async (req, res) => {
         }
       );
     }
-    
-    newTransaction.title = DecryptData(newTransaction.title) === "" ? newTransaction.title : DecryptData(newTransaction.title);
+
+    newTransaction.title =
+      DecryptData(newTransaction.title) === ""
+        ? newTransaction.title
+        : DecryptData(newTransaction.title);
 
     res.status(201).json(newTransaction);
   } catch (error) {
@@ -201,21 +205,21 @@ router.put("/update/:id", auth, async (req, res) => {
 router.post("/transfer", auth, async (req, res) => {
   try {
     // console.time('transferTime: ');
-    let { fromAccount, toAccount, title, amount, date } = req.body;
+    let { accountId, toAccountId, title, amount, date } = req.body;
 
     title = EncryptData(title);
 
     const userId = req.userId;
     let tDate = new Date(date);
 
-    const from = await Account.findById(fromAccount);
+    const from = await Account.findById(accountId);
 
     if (from.balance < amount) {
       res.status(400).json({ message: "Insufficient balance" });
     }
 
     await Account.updateOne(
-      { _id: fromAccount },
+      { _id: accountId },
       {
         $inc: {
           balance: -amount,
@@ -224,7 +228,7 @@ router.post("/transfer", auth, async (req, res) => {
     );
 
     await Account.updateOne(
-      { _id: toAccount },
+      { _id: toAccountId },
       {
         $inc: {
           balance: amount,
@@ -234,7 +238,8 @@ router.post("/transfer", auth, async (req, res) => {
 
     const newTransaction = new Transaction({
       title: title,
-      accountId: fromAccount,
+      accountId: accountId,
+      toAccountId: toAccountId,
       type: "transfer",
       amount: amount,
       category: "account",
@@ -243,8 +248,8 @@ router.post("/transfer", auth, async (req, res) => {
     });
 
     await newTransaction.save();
-    // console.timeEnd('transferTime: ');
-    res.status(201).json({ message: "Transfer successful" });
+    newTransaction.title = DecryptData(newTransaction.title);
+    res.status(201).json({ message: "Transfer successful", newTransaction });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -252,8 +257,64 @@ router.post("/transfer", auth, async (req, res) => {
 });
 
 /*
-* PUT: api/transaction/deleteTransfer/:id
-*/
+ * PUT: api/transaction/deleteTransfer/:id
+ */
+router.delete("/deleteTransfer/:id", auth, async (req, res) => {
+  try {
+    const getTranscation = await Transaction.findById(req.params.id).exec();
 
+    if (!getTranscation) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    await Account.updateOne(
+      { _id: getTranscation.accountId },
+      {
+        $inc: {
+          balance: +getTranscation.amount,
+        },
+      }
+    );
+
+    await Account.updateOne(
+      { _id: getTranscation.toAccountId },
+      {
+        $inc: {
+          balance: -getTranscation.amount,
+        },
+      }
+    );
+
+    await Transaction.deleteOne({ _id: req.params.id });
+
+    res.status(200).json({ message: "Transaction deleted successfully" });
+
+    // await
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/*
+ * PUT : api/transaction/updateTransfer/:id
+ */
+
+router.put("/updateTransfer/:id", auth, async (req, res) => {
+  try {
+    const { accountId, toAccountId, title, amount, date } = req.body;
+
+    const getTransaction = await Transaction.findById(req.params.id).exec();
+
+    if (!getTransaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+   
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;
