@@ -42,9 +42,11 @@ class AddTransactionScreen extends HookConsumerWidget {
 
     final selectedToAccount = useState<Account>(
       editTransaction != null
-          ? ref
-              .read(userProvider.notifier)
-              .getAccountById(editTransaction!.toAccount!.id)
+          ? editTransaction!.toAccount != null
+              ? ref
+                  .read(userProvider.notifier)
+                  .getAccountById(editTransaction!.toAccount!.id)
+              : selectedFromAccount.value
           : ref
               .watch(userProvider)
               .accounts

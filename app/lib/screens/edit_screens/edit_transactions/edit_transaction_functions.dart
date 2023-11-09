@@ -250,6 +250,7 @@ Future<void> createUpdateTransafer(
   );
 
   ref.read(transactionProvider.notifier).addTransaction(newTransaction);
+  print(newTransaction);
 }
 
 Future<bool> deleteTrasaction(
