@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -194,63 +193,88 @@ Future<void> createUpdateTransafer(
     return;
   }
 
-  // isLoading.value = true;
-  // String url = editTransaction == null
-  //     ? "${dotenv.env['API_URL']}/transaction/add"
-  //     : "${dotenv.env['API_URL']}/transaction/update/${editTransaction.id}";
+  isLoading.value = true;
+  String url = editTransaction == null
+      ? "${dotenv.env['API_URL']}/transaction/transfer"
+      : "${dotenv.env['API_URL']}/transaction/transfer/${editTransaction.id}";
 
-  // final createTransaction = {
-  //   "title": title.value,
-  //   "accountId": selectedFromAccount.value.id,
-  //   "toAccountId": selectedToAccount.value.id,
-  //   "type": selectedTransactionType.value.name,
-  //   "amount": amount.value,
-  //   "category": selectedCategory.value.name,
-  //   "date": DateTime(date.value.year, date.value.month, date.value.day,
-  //           time.value.hour, time.value.minute)
-  //       .toUtc()
-  //       .toString()
-  // };
+  final createTransaction = {
+    "title": title.value,
+    "accountId": selectedFromAccount.value.id,
+    "toAccountId": selectedToAccount.value.id,
+    "type": selectedTransactionType.value.name,
+    "amount": amount.value,
+    "category": selectedCategory.value.name,
+    "userId": ref.read(userProvider).id,
+    "date": DateTime(date.value.year, date.value.month, date.value.day,
+            time.value.hour, time.value.minute)
+        .toUtc()
+        .toString()
+  };
 
-  // http.Response response;
+  http.Response response;
 
-  // if (editTransaction == null) {
-  //   response = await http.post(
-  //     Uri.parse(url),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-  //     },
-  //     body: jsonEncode(createTransaction),
-  //   );
-  // } else {
-  //   response = await http.put(
-  //     Uri.parse(url),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
-  //     },
-  //     body: jsonEncode(createTransaction),
-  //   );
-  // }
+  if (editTransaction == null) {
+    response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+      },
+      body: jsonEncode(createTransaction),
+    );
+  } else {
+    response = await http.put(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+      },
+      body: jsonEncode(createTransaction),
+    );
+  }
+  final body = jsonDecode(response.body);
 
-  // if (response.statusCode == 201) {
-  //   final body = jsonDecode(response.body);
-  // }
+  if (response.statusCode == 201) {
+    final newTransaction = Transaction.fromJson(
+        body['newTransaction'] as Map<String, dynamic>, ref);
+    ref.read(transactionProvider.notifier).addTransaction(newTransaction);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              editTransaction == null
+                  ? "Transfer successfully!"
+                  : "Transfer updated successfully!",
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  )),
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+        ),
+      );
 
-  final newTransaction = Transaction(
-    id: DateTime.now().toString(),
-    title: title.value,
-    amount: amount.value,
-    fromAccount: selectedFromAccount.value,
-    toAccount: selectedToAccount.value,
-    type: selectedTransactionType.value,
-    category: selectedCategory.value,
-    date: DateTime.now(),
-  );
+      Navigator.pop(context, true);
+    }
+  } else {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              editTransaction == null
+                  ? "Transfer failed!"
+                  : "Transfer updation failed!",
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  )),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        ),
+      );
+    }
+  }
 
-  ref.read(transactionProvider.notifier).addTransaction(newTransaction);
-  print(newTransaction);
+  isLoading.value = false;
 }
 
 Future<bool> deleteTrasaction(

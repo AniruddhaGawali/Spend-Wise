@@ -39,9 +39,9 @@ class AnalyticsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final transactions = ref.watch(transactionProvider.notifier).get();
     final data = useState<List<ExpenceData>>([]);
     final maxPercentOfExpence = useState<double>(100);
-    final transactions = ref.watch(transactionProvider.notifier).get();
     final typeOfChart = useState<ChartType>(ChartType.radial);
 
     useEffect(() {
@@ -59,11 +59,27 @@ class AnalyticsScreen extends HookConsumerWidget {
 
       temp.sort((a, b) => a.expenceInPercent.compareTo(b.expenceInPercent));
 
-      maxPercentOfExpence.value = temp.last.expenceInPercent;
-      data.value = temp;
+      if (temp.isNotEmpty) {
+        maxPercentOfExpence.value = temp.last.expenceInPercent;
+        data.value = temp;
+      }
 
       return null;
     }, [transactions]);
+
+    if (data.value.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Analytics"),
+        ),
+        body: Center(
+          child: Text(
+            "No data to show",
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
