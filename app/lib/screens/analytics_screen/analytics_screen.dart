@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,7 +42,7 @@ class AnalyticsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final transactions = ref.watch(transactionProvider.notifier).get();
-    final data = useState<List<ExpenceData>>([]);
+    final data = useState<List<ExpenseData>>([]);
     final maxPercentOfExpence = useState<double>(100);
     final typeOfChart = useState<ChartType>(ChartType.radial);
 
@@ -48,19 +50,17 @@ class AnalyticsScreen extends HookConsumerWidget {
       final total = transactions.fold<double>(
           0, (previousValue, element) => previousValue + element.amount);
 
-      List<ExpenceData> temp = [];
-      for (var element in transactions) {
-        if (element.category == TransactionCatergory.account) {
-          continue;
-        }
-        final expenceInPercent = element.amount / total * 100;
-        temp.add(ExpenceData(element.category, expenceInPercent));
-      }
+      List<ExpenseData> temp = calculateExpenseData(transactions);
 
       temp.sort((a, b) => a.expenceInPercent.compareTo(b.expenceInPercent));
 
+      for (var element in temp) {
+        element.expenceInPercent = element.expenceInPercent.roundToDouble();
+      }
+
       if (temp.isNotEmpty) {
         maxPercentOfExpence.value = temp.last.expenceInPercent;
+
         data.value = temp;
       }
 
@@ -88,7 +88,7 @@ class AnalyticsScreen extends HookConsumerWidget {
           children: [
             const Text("Analytics"),
             Text(
-              "${typeOfChart.value == ChartType.bar || typeOfChart.value == ChartType.radial ? "Top 5 Expences | " : ""}Last 30 days",
+              "${typeOfChart.value == ChartType.bar || typeOfChart.value == ChartType.radial ? "Top 5 Expences | " : ""}Last 30 days | In Percent",
               style: Theme.of(context).textTheme.labelSmall,
             )
           ],
@@ -128,10 +128,44 @@ class AnalyticsScreen extends HookConsumerWidget {
       ),
     );
   }
+
+  List<ExpenseData> calculateExpenseData(List<Transaction> transactions) {
+    // Create a map to store total expenses for each category
+    Map<TransactionCatergory, double> categoryExpenses = {};
+
+    // Initialize the map with 0 for each category
+    for (var category in TransactionCatergory.values) {
+      categoryExpenses[category] = 0.0;
+    }
+
+    // Calculate total expenses for each category
+    for (var transaction in transactions) {
+      if (transaction.type == TransactionType.expense &&
+          transaction.category != TransactionCatergory.account) {
+        categoryExpenses[transaction.category] =
+            categoryExpenses[transaction.category]! + transaction.amount;
+      }
+    }
+
+    // Filter out categories with zero expenses
+    categoryExpenses.removeWhere((_, expense) => expense == 0);
+
+    // Calculate the total expenses
+    double totalExpenses = categoryExpenses.values.reduce((a, b) => a + b);
+
+    // Calculate the percentage for each category
+    List<ExpenseData> expenseDataList = [];
+    for (var entry in categoryExpenses.entries) {
+      double expenseInPercent = (entry.value / totalExpenses) * 100;
+      expenseDataList.add(ExpenseData(entry.key, expenseInPercent));
+    }
+
+    return expenseDataList;
+  }
 }
 
-class ExpenceData {
-  ExpenceData(this.catergory, this.expenceInPercent);
+class ExpenseData {
+  ExpenseData(this.catergory, this.expenceInPercent);
   TransactionCatergory catergory;
   double expenceInPercent;
 }

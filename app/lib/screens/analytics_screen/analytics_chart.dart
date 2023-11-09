@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:spendwise/screens/analytics_screen/analytics_screen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+final toolTip = TooltipBehavior(enable: true);
 Widget getRaidalChart(
-    List<ExpenceData> data, double maxPercentOfExpence, BuildContext context) {
+    List<ExpenseData> data, double maxPercentOfExpence, BuildContext context) {
   return SfCircularChart(
     palette: [
       Theme.of(context).colorScheme.inverseSurface,
@@ -16,27 +17,29 @@ Widget getRaidalChart(
         isVisible: true,
         overflowMode: LegendItemOverflowMode.wrap,
         position: LegendPosition.bottom),
+    tooltipBehavior: toolTip,
     series: [
-      RadialBarSeries<ExpenceData, String>(
+      RadialBarSeries<ExpenseData, String>(
         dataSource: data,
         radius: "90%",
         innerRadius: "20%",
         trackColor: Theme.of(context).colorScheme.surface,
         gap: '3%',
         cornerStyle: CornerStyle.bothCurve,
-        xValueMapper: (ExpenceData data, _) => data.catergory.name,
-        yValueMapper: (ExpenceData data, _) => data.expenceInPercent,
+        xValueMapper: (ExpenseData data, _) => data.catergory.name,
+        yValueMapper: (ExpenseData data, _) => data.expenceInPercent,
         legendIconType: LegendIconType.circle,
         sortingOrder: SortingOrder.descending,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
         maximumValue: maxPercentOfExpence + 10,
+        enableTooltip: true,
       )
     ],
   );
 }
 
 Widget getPieChart(
-  List<ExpenceData> data,
+  List<ExpenseData> data,
   double maxPercentOfExpence,
   BuildContext context,
 ) {
@@ -52,22 +55,23 @@ Widget getPieChart(
         isVisible: true,
         overflowMode: LegendItemOverflowMode.wrap,
         position: LegendPosition.bottom),
+    tooltipBehavior: toolTip,
     series: [
-      PieSeries<ExpenceData, String>(
-        dataSource: data,
-        radius: "90%",
-        xValueMapper: (ExpenceData data, _) => data.catergory.name,
-        yValueMapper: (ExpenceData data, _) => data.expenceInPercent,
-        legendIconType: LegendIconType.circle,
-        sortingOrder: SortingOrder.descending,
-        dataLabelSettings: const DataLabelSettings(isVisible: true),
-      )
+      PieSeries<ExpenseData, String>(
+          dataSource: data,
+          radius: "90%",
+          xValueMapper: (ExpenseData data, _) => data.catergory.name,
+          yValueMapper: (ExpenseData data, _) => data.expenceInPercent,
+          legendIconType: LegendIconType.circle,
+          sortingOrder: SortingOrder.descending,
+          dataLabelSettings: const DataLabelSettings(isVisible: true),
+          enableTooltip: true)
     ],
   );
 }
 
 Widget getDonutChart(
-  List<ExpenceData> data,
+  List<ExpenseData> data,
   double maxPercentOfExpence,
   BuildContext context,
 ) {
@@ -83,22 +87,24 @@ Widget getDonutChart(
         isVisible: true,
         overflowMode: LegendItemOverflowMode.wrap,
         position: LegendPosition.bottom),
+    tooltipBehavior: toolTip,
     series: [
-      DoughnutSeries<ExpenceData, String>(
+      DoughnutSeries<ExpenseData, String>(
         dataSource: data,
         radius: "90%",
-        xValueMapper: (ExpenceData data, _) => data.catergory.name,
-        yValueMapper: (ExpenceData data, _) => data.expenceInPercent,
+        xValueMapper: (ExpenseData data, _) => data.catergory.name,
+        yValueMapper: (ExpenseData data, _) => data.expenceInPercent,
         legendIconType: LegendIconType.circle,
         sortingOrder: SortingOrder.descending,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
+        enableTooltip: true,
       )
     ],
   );
 }
 
 Widget getBarChart(
-  List<ExpenceData> data,
+  List<ExpenseData> data,
   double maxPercentOfExpence,
   BuildContext context,
 ) {
@@ -108,13 +114,15 @@ Widget getBarChart(
     zoomPanBehavior: ZoomPanBehavior(
       enablePanning: true,
     ),
+    tooltipBehavior: toolTip,
     series: [
-      BarSeries<ExpenceData, String>(
+      BarSeries<ExpenseData, String>(
         dataSource: data,
-        xValueMapper: (ExpenceData data, _) => data.catergory.name,
-        yValueMapper: (ExpenceData data, _) => data.expenceInPercent,
+        xValueMapper: (ExpenseData data, _) => data.catergory.name,
+        yValueMapper: (ExpenseData data, _) => data.expenceInPercent,
         dataLabelSettings: const DataLabelSettings(isVisible: true),
         color: Theme.of(context).colorScheme.primary,
+        enableTooltip: true,
       )
     ],
   );
