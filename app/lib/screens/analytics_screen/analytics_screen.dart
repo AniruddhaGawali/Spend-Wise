@@ -42,7 +42,7 @@ class AnalyticsScreen extends HookConsumerWidget {
     final data = useState<List<ExpenceData>>([]);
     final maxPercentOfExpence = useState<double>(100);
     final transactions = ref.watch(transactionProvider.notifier).get();
-    final typeOfChart = useState<ChartType>(ChartType.pie);
+    final typeOfChart = useState<ChartType>(ChartType.radial);
 
     useEffect(() {
       final total = transactions.fold<double>(
