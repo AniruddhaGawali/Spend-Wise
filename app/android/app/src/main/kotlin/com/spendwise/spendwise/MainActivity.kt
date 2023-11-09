@@ -1,4 +1,4 @@
-package com.spendwise.spendwise_dev
+package com.spendwise.spendwise
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
