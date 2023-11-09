@@ -85,8 +85,15 @@ class AddTransactionScreen extends HookConsumerWidget {
             editTransaction != null
                 ? IconButton(
                     onPressed: () async {
-                      bool isdeleted =
-                          await deleteTrasaction(ref, context, editTransaction);
+                      bool isdeleted;
+                      if (editTransaction!.type == TransactionType.transfer) {
+                        isdeleted =
+                            await deleteTransfer(ref, context, editTransaction);
+                      } else {
+                        isdeleted = await deleteTrasaction(
+                            ref, context, editTransaction);
+                      }
+
                       if (isdeleted && context.mounted) {
                         Navigator.pop(context, true);
                       }

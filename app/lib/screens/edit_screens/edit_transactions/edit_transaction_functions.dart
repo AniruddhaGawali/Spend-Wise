@@ -239,6 +239,15 @@ Future<void> createUpdateTransafer(
     final newTransaction = Transaction.fromJson(
         body['newTransaction'] as Map<String, dynamic>, ref);
     ref.read(transactionProvider.notifier).addTransaction(newTransaction);
+
+    ref
+        .read(userProvider.notifier)
+        .removeAmount(selectedFromAccount.value, newTransaction.amount);
+
+    ref
+        .read(userProvider.notifier)
+        .addAmount(selectedToAccount.value, newTransaction.amount);
+
     if (context.mounted) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -330,6 +339,73 @@ Future<bool> deleteTrasaction(
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Transaction deletion failed!",
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  )),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        ),
+      );
+    }
+    return false;
+  }
+}
+
+Future<bool> deleteTransfer(
+  WidgetRef ref,
+  BuildContext context,
+  Transaction? editTransaction,
+) async {
+  String url =
+      "${dotenv.env['API_URL']}/transaction/deleteTransfer/${editTransaction!.id}";
+
+  final response = await http.delete(
+    Uri.parse(url),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Authorization": "Bearer ${ref.read(tokenProvider.notifier).get()}"
+    },
+  );
+
+  if (response.statusCode == 200) {
+    ref.read(transactionProvider.notifier).removeTransaction(editTransaction);
+
+    final fromAccount = ref
+        .read(userProvider)
+        .accounts
+        .firstWhere((element) => element.id == editTransaction.fromAccount.id);
+
+    final toAccount = ref
+        .read(userProvider)
+        .accounts
+        .firstWhere((element) => element.id == editTransaction.toAccount!.id);
+
+    ref
+        .read(userProvider.notifier)
+        .addAmount(fromAccount, editTransaction.amount);
+
+    ref
+        .read(userProvider.notifier)
+        .removeAmount(toAccount, editTransaction.amount);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Transfer deleted successfully!",
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  )),
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+        ),
+      );
+    }
+    return true;
+  } else {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Transfer deletion failed!",
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).colorScheme.onErrorContainer,
                   )),
