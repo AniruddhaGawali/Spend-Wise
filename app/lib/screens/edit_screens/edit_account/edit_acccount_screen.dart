@@ -184,11 +184,12 @@ class AddAccountScreen extends HookConsumerWidget {
 
                               if (context.mounted) {
                                 account == null
-                                    ? Navigator.pushReplacement(
+                                    ? Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => MainScreen(),
                                         ),
+                                        (route) => false,
                                       )
                                     : Navigator.pop(context);
                               }

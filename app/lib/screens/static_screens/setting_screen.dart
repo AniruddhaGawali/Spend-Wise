@@ -148,6 +148,12 @@ class SettingScreen extends HookConsumerWidget {
                       ),
                       child: ListTile(
                         onTap: () async {
+                          final isConfirm = await showConfirmDialog(context);
+
+                          if (!isConfirm) {
+                            return;
+                          }
+
                           final response = await http.delete(
                             Uri.parse("${dotenv.env['API_URL']}/user/delete"),
                             headers: {
@@ -239,5 +245,43 @@ class SettingScreen extends HookConsumerWidget {
     }
 
     return false;
+  }
+
+  Future<bool> showConfirmDialog(BuildContext context) async {
+    // set up the button
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Confirm Delete Your Account"),
+      content: const Text(
+          "Are you sure you want to delete this account?\nThis will delete all the transactions associated with this account."),
+      actions: [
+        ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text("Cancel")),
+        ElevatedButton(
+          child: Text(
+            "OK",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+          ),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        )
+      ],
+    );
+    // show the dialog
+    final isConfirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+
+    return isConfirm;
   }
 }

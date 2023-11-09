@@ -42,8 +42,9 @@ Future<bool> createAccount(
 
   isLoading.value = false;
   if (response.statusCode == 201) {
-    ref.read(userProvider.notifier).addAccount(account);
-
+    ref
+        .read(userProvider.notifier)
+        .addAccount(Account.fromJson(jsonDecode(response.body)['account']));
     return true;
   } else {
     return false;
