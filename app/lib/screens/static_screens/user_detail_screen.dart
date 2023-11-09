@@ -1,6 +1,11 @@
+// Flutter imports:
 import 'package:flutter/material.dart';
+
+// Package imports:
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+//  Provider:
 import 'package:spendwise/provider/user_provider.dart';
 
 class UserDetailScreen extends ConsumerWidget {

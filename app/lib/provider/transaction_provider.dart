@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:spendwise/model/account.dart';
 import 'package:spendwise/model/transaction.dart';
 
 class TransactionNotifier extends StateNotifier<List<Transaction>> {
@@ -19,14 +20,9 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
     state = state.where((element) => element.id != transaction.id).toList();
   }
 
-  double totalExpenses() {
-    double total = 0;
-    for (var transaction in state) {
-      if (transaction.type == TransactionType.expense) {
-        total += transaction.amount;
-      }
-    }
-    return total;
+  void removeTransactionOfAccount(Account account) {
+    state =
+        state.where((element) => element.fromAccount.id != account.id).toList();
   }
 
   List<Transaction> transactionsofMonth() {
@@ -44,15 +40,17 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
         .toList());
   }
 
-  double totalExpensesByMonth(int month) {
+  double totalExpensesByMonth(int month, int year) {
     double total = 0;
     for (var transaction in state) {
       if (transaction.type == TransactionType.expense &&
-          transaction.date.month == month) {
+          transaction.date.month == month &&
+          transaction.date.year == year) {
         total -= transaction.amount;
       }
       if (transaction.type == TransactionType.income &&
-          transaction.date.month == month) {
+          transaction.date.month == month &&
+          transaction.date.year == year) {
         total += transaction.amount;
       }
     }

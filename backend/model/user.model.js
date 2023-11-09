@@ -12,12 +12,21 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  email : {
+    type: String,
+    required: true,
+    unique: true,
+  },
   accounts: [
     {
       type: Schema.Types.ObjectId,
       ref: 'Account',
     },
   ],
+  image: {
+    type: String,
+    required: false,
+  },
 });
 
 const User = client.model('User', userSchema);

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/monetary_units.dart';
-import 'package:spendwise/screens/add_transaction_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_transactions/edit_transaction_screen.dart';
 import 'package:spendwise/utils/get_date.dart';
 
 class TransactionCard extends ConsumerWidget {
@@ -52,7 +53,9 @@ class TransactionCard extends ConsumerWidget {
                       backgroundColor:
                           Theme.of(context).colorScheme.surfaceTint,
                       child: Icon(
-                        getTransactionCatergoryIcon(transaction.category),
+                        transaction.type == TransactionType.transfer
+                            ? MdiIcons.swapHorizontal
+                            : getTransactionCatergoryIcon(transaction.category),
                         color: Theme.of(context).colorScheme.onSecondary,
                         size: 25,
                       ),
@@ -118,7 +121,9 @@ class TransactionCard extends ConsumerWidget {
                             .copyWith(
                               color: transaction.type == TransactionType.income
                                   ? Colors.green
-                                  : Theme.of(context).colorScheme.error,
+                                  : transaction.type == TransactionType.expense
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context).colorScheme.onSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

@@ -1,6 +1,12 @@
+// Flutter imports
 import 'package:flutter/material.dart';
+
+// Package imports
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:spendwise/screens/analytics_screen/analytics_screen.dart';
+
+// Screens & Widgets
 import 'package:spendwise/screens/pages/account_page.dart';
 import 'package:spendwise/screens/pages/home_page.dart';
 
@@ -17,9 +23,10 @@ class MainScreen extends HookWidget {
         controller: pageController,
         onPageChanged: (value) => selectedIndex.value = value,
         // ignore: prefer_const_literals_to_create_immutables
-        children: [
+        children: const [
           HomeScreen(),
-          const AllAccountsScreen(),
+          AllAccountsScreen(),
+          AnalyticsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -45,6 +52,11 @@ class MainScreen extends HookWidget {
             selectedIcon: Icon(Icons.wallet),
             label: 'Accounts',
           ),
+          NavigationDestination(
+            icon: Icon(MdiIcons.chartDonut),
+            selectedIcon: Icon(MdiIcons.chartDonutVariant),
+            label: 'Analytics',
+          )
         ],
       ),
     );

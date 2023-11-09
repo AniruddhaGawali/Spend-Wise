@@ -5,8 +5,14 @@ const User = require('../model/user.model');
 const Account = require('../model/account.model');
 const Transaction = require('../model/transaction.model');
 
+// For Decryption of Data
+const DecryptData = require('./../Encryption').decrypt;
+
 // GET all user data, including accounts and transactions
 
+  /*
+    * GET: api/all-data
+  */
 router.get('/', auth, async (req, res) => {
   try {
     // Get user data
@@ -20,21 +26,21 @@ router.get('/', auth, async (req, res) => {
 
     const accounts = await Promise.all(accountPromises);
 
+    // Decrypt account names
+    accounts.forEach((acc) => {
+      acc.name = DecryptData(acc.name) === "" ? acc.name : DecryptData(acc.name) ;
+    });
+
     // Get user's transactions
     const transactions = await Transaction.find({ userId: user.id });
 
+    // Decrypt transaction names
+    transactions.forEach((t) => {
+      t.title = DecryptData(t.title) === "" ? t.title : DecryptData(t.title);
+    });
+
     // Return all data
     res.status(200).json({ user, accounts, transactions });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-router.get('/transactions', auth, async (req, res) => {
-  try {
-    const transactions = await Transaction.find({ userId: req.userId });
-    res.status(200).json(transactions);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

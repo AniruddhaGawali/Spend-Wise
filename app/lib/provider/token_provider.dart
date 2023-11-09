@@ -56,7 +56,6 @@ class TokenNotfier extends Notifier<String> {
       return false;
     } else {
       state = data.first['token'].toString();
-      print(data);
       return true;
     }
   }

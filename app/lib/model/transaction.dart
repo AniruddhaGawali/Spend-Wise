@@ -48,13 +48,24 @@ IconData getTransactionCatergoryIcon(TransactionCatergory catergory) {
   }
 }
 
-enum TransactionType { income, expense }
+enum TransactionType { transfer, income, expense }
+
+getTransactionType(String type) {
+  if (type == "income") {
+    return TransactionType.income;
+  }
+  if (type == "expense") {
+    return TransactionType.expense;
+  }
+  return TransactionType.transfer;
+}
 
 class Transaction {
   final String id;
   final String title;
   final double amount;
-  final Account account;
+  final Account fromAccount;
+  final Account? toAccount;
   final TransactionType type;
   final TransactionCatergory category;
   final DateTime date;
@@ -63,15 +74,20 @@ class Transaction {
     required this.id,
     required this.title,
     required this.amount,
-    required this.account,
+    required this.fromAccount,
+    this.toAccount,
     required this.type,
     required this.category,
     required this.date,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json, WidgetRef ref) {
-    Account account =
+    Account fromAccount =
         ref.read(userProvider.notifier).getAccountById(json["accountId"]);
+
+    Account? toAccount = json["toAccountId"] != null
+        ? ref.read(userProvider.notifier).getAccountById(json["toAccountId"])
+        : null;
 
     final category = TransactionCatergory.values.firstWhere((element) =>
         element.toString().split(".").last == json["category"].toString());
@@ -80,10 +96,13 @@ class Transaction {
       id: json["_id"],
       title: json["title"],
       amount: double.parse(json["amount"].toString()),
-      account: account,
+      fromAccount: fromAccount,
+      toAccount: toAccount,
       type: json["type"] == "income"
           ? TransactionType.income
-          : TransactionType.expense,
+          : json["type"] == "expense"
+              ? TransactionType.expense
+              : TransactionType.transfer,
       category: category,
       date: DateTime.parse(json["date"]).toLocal(),
     );
@@ -94,7 +113,8 @@ class Transaction {
       "_id": id,
       "title": title,
       "amount": amount,
-      "accountId": account.id,
+      "accountId": fromAccount.id,
+      "toAccountId": toAccount != null ? toAccount!.id : null,
       "type": type.toString().split(".").last,
       "category": category.toString().split(".").last,
       "date": date.toUtc().toIso8601String(),
