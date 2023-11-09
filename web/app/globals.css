@@ -6,6 +6,7 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --fontStyle:'Poppins', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,9 +20,27 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+    overflow: hidden;
+    font-style: var(--fontStyle);
+}
+
+:root {
+  --gradient-start-color: #FD746C;
+  --gradient-end-color: #2C3E50;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--gradient-start-color); /* Fallback for old browsers */
+  background: -webkit-linear-gradient(to right, var(--gradient-start-color), var(--gradient-end-color)); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, var(--gradient-start-color), var(--gradient-end-color)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background-size: 100vw 100vh;
+  background-attachment: fixed;
+  overflow: scroll;
 }
