@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -47,9 +45,6 @@ class AnalyticsScreen extends HookConsumerWidget {
     final typeOfChart = useState<ChartType>(ChartType.radial);
 
     useEffect(() {
-      final total = transactions.fold<double>(
-          0, (previousValue, element) => previousValue + element.amount);
-
       List<ExpenseData> temp = calculateExpenseData(transactions);
 
       temp.sort((a, b) => a.expenceInPercent.compareTo(b.expenceInPercent));
