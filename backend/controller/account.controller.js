@@ -7,6 +7,8 @@ const User = require("../model/user.model");
 
 // For Encrypted Data
 const EncryptData = require("./../Encryption").encrypt;
+// For Decryption of Data
+const DecryptData = require('./../Encryption').decrypt;
 
 /*
  * POST /api/account/add-account
@@ -32,6 +34,8 @@ router.post("/add-account", auth, async (req, res) => {
     const user = await User.findById(req.userId);
     user.set({ accounts: [...user.accounts, newAccount._id] });
     await user.save();
+
+    newAccount.name = DecryptData(newAccount.name);
 
     res
       .status(201)
@@ -70,6 +74,8 @@ router.put("/update/:id", auth, async (req, res) => {
       flag = true;
       await accounts.save();
     }
+
+    accounts.name = DecryptData(accounts.name);
 
     //   return the message
     if (flag) {
