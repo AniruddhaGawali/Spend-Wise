@@ -85,8 +85,15 @@ class AddTransactionScreen extends HookConsumerWidget {
             editTransaction != null
                 ? IconButton(
                     onPressed: () async {
-                      bool isdeleted =
-                          await deleteTrasaction(ref, context, editTransaction);
+                      bool isdeleted;
+                      if (editTransaction!.type == TransactionType.transfer) {
+                        isdeleted =
+                            await deleteTransfer(ref, context, editTransaction);
+                      } else {
+                        isdeleted = await deleteTrasaction(
+                            ref, context, editTransaction);
+                      }
+
                       if (isdeleted && context.mounted) {
                         Navigator.pop(context, true);
                       }
@@ -202,72 +209,87 @@ class AddTransactionScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 40,
                     ),
-                    SizedBox(
-                      height: 50,
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          selectedTransactionType.value ==
-                                  TransactionType.transfer
-                              ? createUpdateTransafer(
-                                  ref,
-                                  context,
-                                  title,
-                                  amount,
-                                  selectedDate,
-                                  selectedTime,
-                                  selectedCategory,
-                                  selectedFromAccount,
-                                  selectedToAccount,
-                                  selectedTransactionType,
-                                  isLoading,
-                                  _formKey,
-                                  editTransaction,
-                                )
-                              : addUpdateTransaction(
-                                  ref,
-                                  context,
-                                  title,
-                                  amount,
-                                  selectedDate,
-                                  selectedTime,
-                                  selectedCategory,
-                                  selectedFromAccount,
-                                  selectedTransactionType,
-                                  isLoading,
-                                  _formKey,
-                                  editTransaction,
-                                );
-                        },
-                        icon: isLoading.value
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: Loading(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  strokeWidth: 2,
-                                ))
-                            : Icon(
+                    (selectedTransactionType.value !=
+                                TransactionType.transfer ||
+                            selectedTransactionType.value ==
+                                    TransactionType.transfer &&
+                                editTransaction == null)
+                        ? SizedBox(
+                            height: 50,
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () {
+                                selectedTransactionType.value ==
+                                        TransactionType.transfer
+                                    ? createUpdateTransafer(
+                                        ref,
+                                        context,
+                                        title,
+                                        amount,
+                                        selectedDate,
+                                        selectedTime,
+                                        selectedCategory,
+                                        selectedFromAccount,
+                                        selectedToAccount,
+                                        selectedTransactionType,
+                                        isLoading,
+                                        _formKey,
+                                        editTransaction,
+                                      )
+                                    : addUpdateTransaction(
+                                        ref,
+                                        context,
+                                        title,
+                                        amount,
+                                        selectedDate,
+                                        selectedTime,
+                                        selectedCategory,
+                                        selectedFromAccount,
+                                        selectedTransactionType,
+                                        isLoading,
+                                        _formKey,
+                                        editTransaction,
+                                      );
+                              },
+                              icon: isLoading.value
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: Loading(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        strokeWidth: 2,
+                                      ))
+                                  : Icon(
+                                      editTransaction == null
+                                          ? MdiIcons.plus
+                                          : MdiIcons.update,
+                                      size: 30,
+                                    ),
+                              label: Text(
                                 editTransaction == null
-                                    ? MdiIcons.plus
-                                    : MdiIcons.update,
-                                size: 30,
+                                    ? selectedTransactionType.value !=
+                                            TransactionType.transfer
+                                        ? "Add Transaction"
+                                        : "Transfer"
+                                    : selectedTransactionType.value !=
+                                            TransactionType.transfer
+                                        ? "Update Transaction"
+                                        : "Update Transfer",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
-                        label: Text(
-                          editTransaction == null
-                              ? "Add Transaction"
-                              : "Update Transaction",
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                     const SizedBox(
                       height: 50,
                     )

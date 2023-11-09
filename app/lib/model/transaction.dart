@@ -100,7 +100,9 @@ class Transaction {
       toAccount: toAccount,
       type: json["type"] == "income"
           ? TransactionType.income
-          : TransactionType.expense,
+          : json["type"] == "expense"
+              ? TransactionType.expense
+              : TransactionType.transfer,
       category: category,
       date: DateTime.parse(json["date"]).toLocal(),
     );
