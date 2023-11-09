@@ -5,13 +5,20 @@ const Account = require("../model/account.model");
 const Transaction = require("../model/transaction.model");
 const User = require("../model/user.model");
 
+// For Encrypted Data
+const EncryptData = require("./../Encryption").encrypt;
+// For Decryption of Data
+const DecryptData = require('./../Encryption').decrypt;
+
 /*
- * PUT /api/account/add-account
+ * POST /api/account/add-account
  */
 
-router.put("/add-account", auth, async (req, res) => {
+router.post("/add-account", auth, async (req, res) => {
   try {
-    const { name, balance, type } = req.body;
+    // const to let
+    let { name, balance, type } = req.body;
+    name = EncryptData(name);
 
     // Create new account
     const newAccount = new Account({
@@ -28,9 +35,11 @@ router.put("/add-account", auth, async (req, res) => {
     user.set({ accounts: [...user.accounts, newAccount._id] });
     await user.save();
 
+    newAccount.name = DecryptData(newAccount.name);
+
     res
       .status(201)
-      .json({ message: "Account created and added to user successfully" });
+      .json({ account: newAccount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -46,7 +55,10 @@ router.put("/add-account", auth, async (req, res) => {
 router.put("/update/:id", auth, async (req, res) => {
   try {
     // get the balance and name from the request body
-    const { balance, name, type } = req.body;
+    let { balance, name, type } = req.body;
+
+    name = EncryptData(name);
+
     const id = req.params.id;
 
     // find the account by id
@@ -63,6 +75,8 @@ router.put("/update/:id", auth, async (req, res) => {
       await accounts.save();
     }
 
+    accounts.name = DecryptData(accounts.name);
+
     //   return the message
     if (flag) {
       res.status(201).json({ account: accounts });
@@ -78,25 +92,25 @@ router.put("/update/:id", auth, async (req, res) => {
 /*
  *DELETE:  api/account/delete/:id
  */
-
 router.delete("/delete/:id", auth, async (req, res) => {
   try {
     const id = req.params.id;
-
-    // find the account by id
-    const account = await Account.findByIdAndDelete(id);
-    const transactions = await Transaction.find({ accountId: id });
-    const user = await User.findById(req.userId);
-    user.set({ accounts: user.accounts.filter((acc) => acc != id) });
-    await user.save();
-
+    const account = await Account.findById(id).exec();
     let flag = false;
-
-    // if account exists, update the balance and name
-    if (transactions && account) {
-      transactions.forEach(async (transaction) => {
-        await Transaction.deleteOne({ _id: transaction._id });
+    if (account) {
+      const user = await User.findById(req.userId);
+      const transactions = await Transaction.find({ accountId: account._id });
+      transactions?.forEach(async (t) => {
+        await Transaction.findByIdAndDelete(t._id);
       });
+      user.set({
+        accounts: user.accounts.filter(
+          (acc) => acc.toString() !== id.toString()
+        ),
+      });
+      await user.save();
+      await account.deleteOne();
+
       flag = true;
     }
 

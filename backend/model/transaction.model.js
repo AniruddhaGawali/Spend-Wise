@@ -16,6 +16,11 @@ const transactionSchema = new mongoose.Schema(
       ref: 'Account',
       required: true,
     },
+    toAccountId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Account',
+      required: false,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -23,7 +28,7 @@ const transactionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['income', 'expense'],
+      enum: ['income', 'expense','transfer'],
       required: true,
     },
     category: {
