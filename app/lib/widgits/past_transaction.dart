@@ -118,6 +118,8 @@ class PastTransactions extends ConsumerWidget {
   double getTotalExpenses() {
     double total = 0;
     for (var transaction in transactions) {
+      if (transaction.type == TransactionType.transfer) continue;
+
       if (transaction.type == TransactionType.expense) {
         total -= transaction.amount;
       } else {

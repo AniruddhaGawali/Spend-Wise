@@ -113,38 +113,46 @@ class AddTransactionScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 20,
                     ),
-                    SegmentedButton<TransactionType>(
-                      segments: [
-                        ...TransactionType.values.reversed
-                            .map(
-                              (e) => ButtonSegment<TransactionType>(
-                                label: Text(
-                                  e
-                                          .toString()
-                                          .split('.')
-                                          .last[0]
-                                          .toUpperCase() +
-                                      e.toString().split('.').last.substring(1),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<TransactionType>(
+                        segments: [
+                          ...TransactionType.values.reversed
+                              .map(
+                                (e) => ButtonSegment<TransactionType>(
+                                  label: Text(
+                                    e
+                                            .toString()
+                                            .split('.')
+                                            .last[0]
+                                            .toUpperCase() +
+                                        e
+                                            .toString()
+                                            .split('.')
+                                            .last
+                                            .substring(1),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  value: e,
                                 ),
-                                value: e,
-                              ),
-                            )
-                            .toList(),
-                      ],
-                      selected: {selectedTransactionType.value},
-                      onSelectionChanged: (value) {
-                        value.first == TransactionType.expense
-                            ? selectedCategory.value = TransactionCatergory.food
-                            : selectedCategory.value =
-                                TransactionCatergory.account;
-                        selectedTransactionType.value = value.first;
-                      },
+                              )
+                              .toList(),
+                        ],
+                        selected: {selectedTransactionType.value},
+                        onSelectionChanged: (value) {
+                          value.first == TransactionType.expense
+                              ? selectedCategory.value =
+                                  TransactionCatergory.food
+                              : selectedCategory.value =
+                                  TransactionCatergory.account;
+                          selectedTransactionType.value = value.first;
+                        },
+                      ),
                     ),
                     const SizedBox(
                       height: 20,

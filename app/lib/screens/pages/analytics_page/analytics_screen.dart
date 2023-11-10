@@ -4,7 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/transaction_provider.dart';
-import 'package:spendwise/screens/analytics_screen/analytics_chart.dart';
+import 'package:spendwise/screens/pages/analytics_page/analytics_chart.dart';
+import 'package:spendwise/utils/get_date.dart';
 
 enum ChartType { radial, donut, pie, bar }
 
@@ -39,12 +40,19 @@ class AnalyticsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactions = ref.watch(transactionProvider.notifier).get();
+    List<Transaction> transactions =
+        ref.watch(transactionProvider.notifier).get();
     final data = useState<List<ExpenseData>>([]);
     final maxPercentOfExpence = useState<double>(100);
     final typeOfChart = useState<ChartType>(ChartType.radial);
 
     useEffect(() {
+      transactions = transactions
+          .where((element) =>
+              element.date.month == DateTime.now().month &&
+              element.date.year == DateTime.now().year)
+          .toList();
+
       List<ExpenseData> temp = calculateExpenseData(transactions);
 
       temp.sort((a, b) => a.expenceInPercent.compareTo(b.expenceInPercent));
@@ -55,7 +63,6 @@ class AnalyticsScreen extends HookConsumerWidget {
 
       if (temp.isNotEmpty) {
         maxPercentOfExpence.value = temp.last.expenceInPercent;
-
         data.value = temp;
       }
 
@@ -83,7 +90,7 @@ class AnalyticsScreen extends HookConsumerWidget {
           children: [
             const Text("Analytics"),
             Text(
-              "${typeOfChart.value == ChartType.bar || typeOfChart.value == ChartType.radial ? "Top 5 Expences | " : ""}Last 30 days | In Percent",
+              "${typeOfChart.value == ChartType.bar || typeOfChart.value == ChartType.radial ? "Top 5 Expences | " : ""}${getMonth(DateTime.now().month)} ${DateTime.now().year} | In Percent",
               style: Theme.of(context).textTheme.labelSmall,
             )
           ],

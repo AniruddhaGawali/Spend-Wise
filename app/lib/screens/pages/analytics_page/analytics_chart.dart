@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendwise/screens/analytics_screen/analytics_screen.dart';
+import 'package:spendwise/screens/pages/analytics_page/analytics_screen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 final toolTip = TooltipBehavior(enable: true);

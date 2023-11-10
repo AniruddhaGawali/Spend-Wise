@@ -43,6 +43,8 @@ class TransactionNotifier extends StateNotifier<List<Transaction>> {
   double totalExpensesByMonth(int month, int year) {
     double total = 0;
     for (var transaction in state) {
+      if (transaction.type == TransactionType.transfer) continue;
+
       if (transaction.type == TransactionType.expense &&
           transaction.date.month == month &&
           transaction.date.year == year) {

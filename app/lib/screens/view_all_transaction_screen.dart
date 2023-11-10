@@ -47,6 +47,8 @@ class ViewAllTransactionScreen extends HookConsumerWidget {
     double total = 0;
     for (final transaction in transactions) {
       if (transaction.date.month == month && transaction.date.year == year) {
+        if (transaction.type == TransactionType.transfer) continue;
+
         if (transaction.type == TransactionType.expense) {
           total -= transaction.amount;
         } else {
