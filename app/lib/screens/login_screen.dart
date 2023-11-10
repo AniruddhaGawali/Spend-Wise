@@ -13,7 +13,7 @@ import 'package:spendwise/provider/token_provider.dart';
 
 // Screens & Widgets
 import 'package:spendwise/screens/main_screen.dart';
-import 'package:spendwise/screens/register_screen_screen.dart';
+import 'package:spendwise/screens/register_screen.dart';
 import 'package:spendwise/widgits/auth.dart';
 
 // utils

@@ -20,7 +20,7 @@ import 'package:spendwise/provider/token_provider.dart';
 // Screens & Widgets
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/screens/main_screen.dart';
-import 'package:spendwise/screens/register_screen_screen.dart';
+import 'package:spendwise/screens/register_screen.dart';
 import 'package:spendwise/screens/edit_screens/select_%20monetary_unit.dart';
 import 'package:spendwise/screens/static_screens/startup_screen.dart';
 

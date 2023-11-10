@@ -14,6 +14,7 @@ import 'package:spendwise/provider/token_provider.dart';
 // Screens & Widgets
 import 'package:spendwise/screens/edit_screens/edit_account/edit_acccount_screen.dart';
 import 'package:spendwise/screens/login_screen.dart';
+import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/auth.dart';
 
 class RegisterScreeen extends StatelessWidget {
@@ -84,6 +85,8 @@ class RegisterScreeen extends StatelessWidget {
         if (rememberMe) {
           ref.read(tokenProvider.notifier).saveToken();
         }
+
+        await fetchData(ref);
 
         return true;
       } else if (response.statusCode == 409) {

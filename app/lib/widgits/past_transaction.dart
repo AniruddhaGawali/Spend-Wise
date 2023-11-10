@@ -81,29 +81,38 @@ class PastTransactions extends ConsumerWidget {
         const SizedBox(
           height: 20,
         ),
-        ...transactions.map((e) => TransactionCard(transaction: e)).toList(),
         transactions.isNotEmpty
-            ? Container(
-                margin: const EdgeInsets.only(top: 20),
-                child: FilledButton.tonal(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return ViewAllTransactionScreen(
-                          title: "All Transactions",
-                          transactions: ref
-                              .read(transactionProvider.notifier)
-                              .getSorted(),
-                        );
-                      }));
-                    },
-                    child: Text(
-                      "View All",
-                      softWrap: false,
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    )))
+            ? Column(
+                children: [
+                  ...transactions
+                      .map((e) => TransactionCard(transaction: e))
+                      .toList(),
+                  Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    child: FilledButton.tonal(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ViewAllTransactionScreen(
+                            title: "All Transactions",
+                            transactions: ref
+                                .read(transactionProvider.notifier)
+                                .getSorted(),
+                          );
+                        }));
+                      },
+                      child: Text(
+                        "View All",
+                        softWrap: false,
+                        style:
+                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                    ),
+                  )
+                ],
+              )
             : Text(
                 "No Transactions",
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(),
