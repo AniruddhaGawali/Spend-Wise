@@ -26,7 +26,7 @@ export const Navbar = () => {
 
   return (
     <div>
-      <nav className={`relative flex px-5 h-16 mb-2 justify-between items-center shadow-md top-0 w-full ${isScrolled ? "bg-white text-black" : "bg-[var(--gradient-start-color)] text-white"}`}>
+      <nav className={`relative flex px-5 h-16 mb-2 justify-between items-center shadow-md top-0 w-full ${isScrolled ? "bg-white text-black" : "bg-[var(--gradient-end-color)] text-white"}`}>
         <Link href="/" className="flex items-center">
           <Icon path={mdiWallet} size={1} className={`mx-1 ${isScrolled ? "text-[var(--gradient-start-color)]" : "text-white"}`} />
           <div className="text-xl font-semibold">Spend Wise</div>
@@ -54,13 +54,13 @@ export const Navbar = () => {
           )}
         </div>
         <div className="hidden md:flex space-x-4">
-          <Link href="/pages/login" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:text-gray-800`}>
+          <Link href="/pages/login" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
             LogIn
           </Link>
-          <Link href="/pages/register" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:text-gray-800`}>
+          <Link href="/pages/register" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
             Register
           </Link>
-          <Link href="/pages/terms" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:text-gray-800`}>
+          <Link href="/pages/terms" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
             Terms
           </Link>
         </div>
