@@ -8,8 +8,8 @@ export const Footer = () => {
         <div className='flex flex-col items-center md:items-start text-center md:text-left mb-4 md:mb-0'>
           <ul className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4 md:list-disc md:list-inside">
             <li><a href='/pages/terms'>Terms of Use</a></li>
-            <li><a href='/pages/register'>Register</a></li>
-            <li><a href='/pages/login'>LogIn</a></li>
+            <li><a href='/pages/registerPage'>Register</a></li>
+            <li><a href='/pages/logInPage'>LogIn</a></li>
           </ul>
           <p className="mt-2 md:mt-0">Copyright @2023 MindStack Inc. All rights reserved.</p>
         </div>
