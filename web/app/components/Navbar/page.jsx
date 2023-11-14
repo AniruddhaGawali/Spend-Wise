@@ -45,7 +45,7 @@ export const Navbar = () => {
                 Home
                 <hr/>
               </Link>
-              <Link href="/pages/login" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
+              <Link href="/pages/logInPage" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
                 LogIn
                 <hr/>
               </Link>
@@ -61,7 +61,7 @@ export const Navbar = () => {
           )}
         </div>
         <div className="hidden md:flex space-x-4">
-          <Link href="/pages/login" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
+          <Link href="/pages/logInPage" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
             LogIn
           </Link>
           <Link href="/pages/register" className={`px-4 py-2 text-${isScrolled ? "black" : "white"} hover:bg-[var(--gradient-start-color)]`}>
