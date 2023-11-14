@@ -26,7 +26,7 @@ export const Navbar = () => {
 
   return (
     <div>
-      <nav className={`relative flex px-5 h-16 mb-2 justify-between items-center shadow-md top-0 w-full ${isScrolled ? "bg-white text-black" : "bg-[var(--gradient-end-color)] text-white"}`}>
+      <nav className={`md:relative fixed flex px-5 h-16 mb-2 justify-between items-center shadow-md top-0 w-full ${isScrolled ? "bg-white text-black" : "bg-[var(--gradient-end-color)] text-white"}`}>
         <Link href="/" className="flex items-center">
           <Icon path={mdiWallet} size={1} className={`mx-1 ${isScrolled ? "text-[var(--gradient-start-color)]" : "text-white"}`} />
           <div className="text-xl font-semibold">Spend Wise</div>
@@ -40,15 +40,22 @@ export const Navbar = () => {
             <Icon path={mdiMenu} size={1} />
           </button>
           {isMenuOpen && (
-            <div className={`absolute flex flex-col items-end mt-2 space-y-4 ${isScrolled ? "bg-white" : "bg-gray-800"} p-4 rounded-md`}>
+            <div className={`fixed top-12 left-0 w-full flex flex-col items-center mt-2 space-y-4 ${isScrolled ? "bg-white" : "bg-gray-800"} p-4 rounded-md`}>
+              <Link href="/" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
+                Home
+                <hr/>
+              </Link>
               <Link href="/pages/login" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
                 LogIn
+                <hr/>
               </Link>
               <Link href="/pages/register" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
                 Register
+                <hr/>
               </Link>
               <Link href="/pages/terms" className={`text-${isScrolled ? "black" : "white"} hover:text-gray-300`} onClick={toggleMenu}>
                 Terms
+                <hr/>
               </Link>
             </div>
           )}
