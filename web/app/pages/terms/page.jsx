@@ -1,20 +1,23 @@
 import Head from "next/head";
 import { Navbar } from "@/app/components/Navbar/page";
+import { Footer } from "@/app/components/Footer/page";
 
 export default function terms(){
   return (
     <>
     <Navbar/>
-    <div className="relative">
-    <div className="absolute overflow-hidden bg-gradient-to-r from-[rgb(0,0,0,.8)] to-[rgb(255,255,255,.3)] object-cover rounded-t-md  w-full h-full " />
+    <span className=" h-auto w-full">
+
+    <div className="md:relative md:mt-auto mt-20">
+    <div className="md:absolute  overflow-hidden bg-gradient-to-r from-[rgb(0,0,0,.8)] to-[rgb(255,255,255,.3)] object-cover rounded-t-md  w-full h-full " />
     <Head>
       <title >Terms and Conditions - Spend Wise</title>
     </Head>
 
-    <div className="container mx-auto py-12 px-6 fontStyle shadow-md">
-      <h1 className="relative text-3xl font-bold mb-6">Terms and Conditions</h1>
-      <div className="prose">
-        <ol className="list-decimal pl-6 list-inside font-semibold relative">
+    <div className="container mx-auto py-12 px-6 fontStyle shadow-md text-white">
+      <h1 className="md:relative text-3xl font-bold mb-6 ">Terms and Conditions</h1>
+      <div className="prose text-sm md:text-base lg:text-lg">
+        <ol className="list-decimal pl-6 list-inside font-semibold text-xs md:relative">
           <li className="p-3">
             By using the Spend Wise app, you agree to comply with the terms
             and conditions outlined herein.
@@ -105,6 +108,8 @@ export default function terms(){
       </div>
     </div>
   </div>
+    </span>
+    <Footer/>
     </>
   );
 }
