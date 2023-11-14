@@ -1,14 +1,14 @@
 import React from "react";
-import { ComingSoon } from "@/app/components/ComingSoon.js/page";
+import { LogIn } from "@/app/components/LogIn/page";
 import { Navbar } from "@/app/components/Navbar/page";
 
-const LogIn = () => {
+const logInPage = () => {
   return (
     <div>
       <Navbar />
-      <ComingSoon />
+      <LogIn />    
     </div>
   );
 };
 
-export default LogIn;
+export default logInPage;
