@@ -35,7 +35,7 @@ export const Navbar = () => {
           {/* Mobile Menu */}
           <button
             onClick={toggleMenu}
-            className={`px-3 py-2 text-${isScrolled ? "black" : "white"}  focus:outline-none`}
+            className={`px-3 py-2 text-${isScrolled ? "black" : "white"}  focus:outline-none ease-in-out duration-300`}
           >
             <Icon path={mdiMenu} size={1} />
           </button>
