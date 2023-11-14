@@ -8,9 +8,8 @@ import {Footer} from "./components/Footer/page";
 export default function Home() {
   return (
     <>
-    <div className="overflow-y-auto overflow-x-hidden">
-
      <Navbar/>
+    <div className="overflow-y-auto overflow-x-hidden md:mt-auto mt-20">
      <HeroSection/>
       <ScreenshotSection/>
      <PromotionSection/>
