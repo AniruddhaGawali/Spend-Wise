@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-
+  
 export const HeroSection = () => {
   return (
     <div className="bg-[var(--gradient-start-color)] w-full shadow-2xl">
