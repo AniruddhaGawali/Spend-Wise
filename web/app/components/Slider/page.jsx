@@ -61,13 +61,13 @@ export default function Slider(props) {
             {showArrowControls && (
               <>
                 <div
-                  className="absolute w-20 h-20 left-20 top-1/2 transform -translate-y-1/2 cursor-pointer rounded-full bg-slate-300 flex items-center justify-center ease-in-out duration-150"
+                  className="sm:absolute hidden w-20 h-20 left-20 top-1/2 transform -translate-y-1/2 cursor-pointer rounded-full bg-slate-300 sm:flex items-center justify-center ease-in-out duration-150"
                   onClick={leftClickHandle}
                 >
                   &lt;
                 </div>
                 <div
-                  className="absolute w-20 h-20 right-20 top-1/2 transform -translate-y-1/2 cursor-pointer rounded-full bg-slate-300 flex items-center justify-center ease-in-out duration-150"
+                  className="sm:absolute hidden w-20 h-20 right-20 top-1/2 transform -translate-y-1/2 cursor-pointer rounded-full bg-slate-300 sm:flex items-center justify-center ease-in-out duration-150"
                   onClick={rightClickHandle}
                 >
                   &gt;
