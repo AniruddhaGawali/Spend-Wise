@@ -8,7 +8,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 // Project imports:
 import 'package:spendwise/model/account.dart';
-import 'package:spendwise/screens/edit_screens/edit_account/edit_account_functions.dart';
+import 'package:spendwise/utils/account.dart';
 
 // Screen and Widget imports:
 import 'package:spendwise/screens/main_screen.dart';

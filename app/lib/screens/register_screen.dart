@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:spendwise/provider/token_provider.dart';
 
 // Screens & Widgets
-import 'package:spendwise/screens/edit_screens/edit_account/edit_acccount_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_acccount_screen.dart';
 import 'package:spendwise/screens/login_screen.dart';
 import 'package:spendwise/utils/fetch_all_data.dart';
 import 'package:spendwise/widgits/auth.dart';

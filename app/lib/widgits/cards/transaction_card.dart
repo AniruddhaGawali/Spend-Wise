@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:spendwise/model/transaction.dart';
 import 'package:spendwise/provider/monetary_units.dart';
-import 'package:spendwise/screens/edit_screens/edit_transactions/edit_transaction_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_transaction_screen.dart';
 import 'package:spendwise/utils/get_date.dart';
 
 class TransactionCard extends ConsumerWidget {

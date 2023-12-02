@@ -10,7 +10,7 @@ import 'package:spendwise/provider/transaction_provider.dart';
 import 'package:spendwise/provider/user_provider.dart';
 
 // Screens & Widgets
-import 'package:spendwise/screens/edit_screens/edit_account/edit_acccount_screen.dart';
+import 'package:spendwise/screens/edit_screens/edit_acccount_screen.dart';
 import 'package:spendwise/screens/edit_screens/update_account_screen.dart';
 import 'package:spendwise/screens/view_all_transaction_screen.dart';
 import 'package:spendwise/widgits/cards/account_card.dart';
